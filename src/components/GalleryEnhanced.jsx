@@ -1,13 +1,9 @@
 import React, { useState } from 'react';
-import { normalizeImageData } from '../lib/styleConfig.js';
 import OriginalImagesGrid from './OriginalImagesGrid.jsx';
 import DownloadButtons from './DownloadButtons.jsx';
 
 const ImageModal = ({ image, isOpen, onClose }) => {
   if (!isOpen || !image) return null;
-
-  // Normalizar datos de imagen usando la configuración del estilo
-  const normalizedImage = normalizeImageData(image);
 
   const formatFileSize = (bytes) => {
     const sizes = ['Bytes', 'KB', 'MB', 'GB'];
@@ -37,10 +33,10 @@ const ImageModal = ({ image, isOpen, onClose }) => {
               <div className="flex items-center space-x-4 text-sm text-gray-300">
                 <span className="flex items-center">
                   <span className="w-2 h-2 bg-green-400 rounded-full mr-2"></span>
-                  {image.styleId}
+                  {image.styleName || image.style?.name || image.styleId}
                 </span>
-                {image.generationTime && <span>⏱️ {image.generationTime}s</span>}
-                <span>📅 {formatDate(image.createdAt)}</span>
+                {image.generationTime && <span>{image.generationTime}s</span>}
+                <span> {formatDate(image.createdAt)}</span>
               </div>
             </div>
             <button 
@@ -76,7 +72,7 @@ const ImageModal = ({ image, isOpen, onClose }) => {
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div className="bg-white p-3 rounded-lg">
                   <strong className="text-gray-700">Estilo:</strong>
-                  <p className="text-gray-600 mt-1">{image.styleId}</p>
+                  <p className="text-gray-600 mt-1">{image.styleName || image.style?.name || image.styleId}</p>
                 </div>
                 <div className="bg-white p-3 rounded-lg">
                   <strong className="text-gray-700">Tamaño:</strong>
@@ -91,7 +87,7 @@ const ImageModal = ({ image, isOpen, onClose }) => {
                 <div className="bg-white p-3 rounded-lg">
                   <strong className="text-gray-700">Calidad:</strong>
                   <p className="text-gray-600 mt-1">
-                    {image.generation?.quality === 'high' ? '🎨 Alta' : '⚡ Media'}
+                    {image.generation?.quality === 'high' ? 'Alta' : 'Media'}
                   </p>
                 </div>
                 <div className="bg-white p-3 rounded-lg">
@@ -120,21 +116,21 @@ const ImageModal = ({ image, isOpen, onClose }) => {
 
             {/* Imágenes originales - Componente genérico */}
             <OriginalImagesGrid 
-              image={normalizedImage} 
+              image={image} 
               formatFileSize={formatFileSize} 
             />
 
             {/* Acciones */}
             <div className="space-y-3">
               <a 
-                href={image.imageUrl} 
+                href={image.downloadUrl || image.imageUrl} 
                 download={image.fileName}
                 className="w-full bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium text-center block"
               >
                 Descargar Imagen Generada
               </a>
               
-              <DownloadButtons image={normalizedImage} />
+              <DownloadButtons image={image} />
             </div>
 
           </div>
@@ -148,7 +144,7 @@ const GalleryGrid = ({ images, onImageClick }) => {
   const [filter, setFilter] = useState('all');
   
   // Obtener estilos únicos para filtros
-  const uniqueStyles = [...new Set(images.map(img => img.styleId))];
+  const uniqueStyles = [...new Map(images.map((img) => [img.styleId, img.styleName || img.style?.name || img.styleId])).entries()];
   
   // Filtrar imágenes
   const filteredImages = filter === 'all' 
@@ -170,19 +166,19 @@ const GalleryGrid = ({ images, onImageClick }) => {
           Todas ({images.length})
         </button>
         
-        {uniqueStyles.map(style => {
-          const count = images.filter(img => img.styleId === style).length;
+        {uniqueStyles.map(([styleId, styleName]) => {
+          const count = images.filter(img => img.styleId === styleId).length;
           return (
             <button
-              key={style}
-              onClick={() => setFilter(style)}
+              key={styleId}
+              onClick={() => setFilter(styleId)}
               className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                filter === style 
+                filter === styleId 
                   ? 'bg-primary-600 text-white' 
                   : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
               }`}
             >
-              {style} ({count})
+              {styleName} ({count})
             </button>
           );
         })}
@@ -191,12 +187,11 @@ const GalleryGrid = ({ images, onImageClick }) => {
       {/* Grid de imágenes */}
       {filteredImages.length === 0 ? (
         <div className="text-center py-12">
-          <div className="text-6xl mb-4">📸</div>
           <h3 className="text-2xl font-semibold text-gray-700 mb-2">No hay imágenes</h3>
           <p className="text-gray-500">
             {filter === 'all' 
               ? 'Aún no se han generado imágenes. ¡Crea la primera!' 
-              : `No hay imágenes para el filtro "${filter}"`
+              : `No hay imágenes para el filtro "${uniqueStyles.find(([styleId]) => styleId === filter)?.[1] || filter}"`
             }
           </p>
         </div>
@@ -213,9 +208,11 @@ const GalleryGrid = ({ images, onImageClick }) => {
                   src={image.imageUrl} 
                   alt={`Imagen generada - ${image.styleId}`}
                   className="w-full h-64 object-cover group-hover:brightness-110 transition-all duration-200"
+                  width="640"
+                  height="640"
                   loading="lazy"
+                  decoding="async"
                   onError={(e) => {
-                    console.error('Error cargando imagen:', image.imageUrl);
                     e.target.style.display = 'none';
                   }}
                 />
@@ -223,7 +220,7 @@ const GalleryGrid = ({ images, onImageClick }) => {
                 {/* Badges de información */}
                 <div className="absolute top-3 left-3 space-y-2">
                   <span className="bg-blue-600 text-white text-xs px-2 py-1 rounded-full font-medium">
-                    {image.styleId}
+                    {image.styleName || image.style?.name || image.styleId}
                   </span>
                   {image.hasMetadata && (
                     <span className="bg-green-500 text-white text-xs px-2 py-1 rounded-full font-medium block">
@@ -236,13 +233,13 @@ const GalleryGrid = ({ images, onImageClick }) => {
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                   <div className="absolute bottom-4 left-4 right-4 text-white">
                     <p className="text-sm font-semibold truncate">
-                      {normalizeImageData(image).displayTitle}
+                      {image.displayTitle || image.styleName || image.styleId}
                     </p>
                     <p className="text-xs opacity-80">
                       {new Date(image.createdAt).toLocaleDateString('es-ES')}
                     </p>
                     {image.generationTime && (
-                      <p className="text-xs opacity-80">⏱️ {image.generationTime}s</p>
+                      <p className="text-xs opacity-80">{image.generationTime}s</p>
                     )}
                   </div>
                 </div>
@@ -255,9 +252,8 @@ const GalleryGrid = ({ images, onImageClick }) => {
       {/* Mensaje si no hay imágenes */}
       {filteredImages.length === 0 && (
         <div className="text-center py-12">
-          <div className="text-6xl mb-4">🖼️</div>
           <h3 className="text-xl font-semibold text-gray-600 mb-2">
-            No hay imágenes {filter !== 'all' ? `de ${filter}` : ''}
+            No hay imágenes {filter !== 'all' ? `de ${uniqueStyles.find(([styleId]) => styleId === filter)?.[1] || filter}` : ''}
           </h3>
           <p className="text-gray-500">
             {filter !== 'all' 

@@ -1,18 +1,11 @@
 ---
 export const prerender = false; // Habilitar SSR para contenido dinámico
 
-import { getGeneratedImages } from '../lib/galleryService.js';
-import { normalizeImageData } from '../lib/styleConfig.js';
+import { getGeneratedImages } from '../server/gallery';
 
-// Obtener todas las imágenes generadas
 const allImages = await getGeneratedImages();
-
-// Normalizar imágenes y filtrar las que tienen originales
-const normalizedImages = allImages.map(img => normalizeImageData(img));
-const imagesWithOriginals = normalizedImages.filter(img => img.availableImages.length > 0);
-
-// Si no hay imágenes con originales, usar todas las imágenes
-const displayImages = imagesWithOriginals.length > 0 ? imagesWithOriginals : normalizedImages;
+const imagesWithOriginals = allImages.filter((img) => img.availableImages.length > 0);
+const displayImages = imagesWithOriginals.length > 0 ? imagesWithOriginals : allImages;
 ---
 
 <!DOCTYPE html>
@@ -273,7 +266,7 @@ const displayImages = imagesWithOriginals.length > 0 ? imagesWithOriginals : nor
         <>
           <!-- Imagen Original -->
           <div class="image-container">
-            <div class="image-label original">📸 Original</div>
+            <div class="image-label original">Original</div>
             <div class="image-wrapper">
               <img 
                 id="originalImage" 
@@ -290,9 +283,9 @@ const displayImages = imagesWithOriginals.length > 0 ? imagesWithOriginals : nor
 
           <!-- Imagen Generada -->
           <div class="image-container">
-            <div class="image-label generated">🎨 Creación AI</div>
+            <div class="image-label generated">Creación AI</div>
             <div class="style-badge" id="styleBadge">
-              {displayImages[0].styleId?.replace(/-/g, ' ').toUpperCase() || 'AI STYLE'}
+              {displayImages[0].style?.name || displayImages[0].styleName || 'AI'}
             </div>
             <div class="image-wrapper">
               <img 
@@ -306,7 +299,7 @@ const displayImages = imagesWithOriginals.length > 0 ? imagesWithOriginals : nor
         </>
       ) : (
         <div class="loading pulse">
-          <p>⏳ Cargando galería...</p>
+          <p>Cargando galería...</p>
         </div>
       )}
     </div>
@@ -341,9 +334,6 @@ const displayImages = imagesWithOriginals.length > 0 ? imagesWithOriginals : nor
       if (images.length === 0 || isPaused) return;
 
       const currentImage = images[currentIndex];
-      
-      console.log(`🖼️ Mostrando imagen ${currentIndex + 1}/${images.length}: ${currentImage.id || currentImage.fileName}`);
-      
       // Actualizar imagen original usando availableImages normalizado
       const originalImg = document.getElementById('originalImage');
       let originalSrc = null;
@@ -383,11 +373,8 @@ const displayImages = imagesWithOriginals.length > 0 ? imagesWithOriginals : nor
 
       // Actualizar badge de estilo
       const styleBadge = document.getElementById('styleBadge');
-      if (styleBadge && currentImage.styleId) {
-        const styleName = currentImage.styleId
-          .replace(/-/g, ' ')
-          .toUpperCase();
-        styleBadge.textContent = styleName;
+      if (styleBadge) {
+        styleBadge.textContent = currentImage.style?.name || currentImage.styleName || currentImage.styleId || 'AI';
       }
 
       // Actualizar contador
@@ -425,7 +412,7 @@ const displayImages = imagesWithOriginals.length > 0 ? imagesWithOriginals : nor
         box-shadow: 0 20px 60px rgba(102, 126, 234, 0.6);
         animation: notificationPulse 0.5s ease-out;
       `;
-      notification.innerHTML = '✨ Nueva imagen generada! ✨';
+      notification.textContent = 'Nueva imagen generada';
       
       // Agregar animación CSS
       const style = document.createElement('style');
@@ -461,8 +448,6 @@ const displayImages = imagesWithOriginals.length > 0 ? imagesWithOriginals : nor
         
         // Verificar si es una imagen nueva (diferente a la última conocida)
         if (newImageId !== lastKnownImageId && newTimestamp > lastKnownTimestamp) {
-          console.log('🎉 Nueva imagen detectada:', newImageId);
-          
           // Pausar rotación temporalmente
           isPaused = true;
           
@@ -472,9 +457,6 @@ const displayImages = imagesWithOriginals.length > 0 ? imagesWithOriginals : nor
           
           // Insertar la nueva imagen en la siguiente posición de la cola
           images.splice(insertPosition, 0, data.image);
-          
-          console.log(`📍 Nueva imagen insertada en posición ${insertPosition}/${images.length}`);
-          
           // Actualizar referencias
           lastKnownImageId = newImageId;
           lastKnownTimestamp = newTimestamp;
@@ -493,15 +475,11 @@ const displayImages = imagesWithOriginals.length > 0 ? imagesWithOriginals : nor
             // Reanudar rotación después de mostrar
             setTimeout(() => {
               isPaused = false;
-              console.log('▶️ Rotación reanudada desde posición:', currentIndex + 1);
             }, TRANSITION_INTERVAL);
             
           }, 3000);
-          
-          console.log(`📊 Cola actualizada: ${images.length} imágenes totales`);
         }
       } catch (error) {
-        console.error('❌ Error verificando nuevas imágenes:', error);
       }
     }
 
@@ -542,10 +520,6 @@ const displayImages = imagesWithOriginals.length > 0 ? imagesWithOriginals : nor
         checkForNewImages();
       }
     });
-
-    console.log('🖥️ TV Display iniciado con', images.length, 'imágenes');
-    console.log('🔄 Sistema de cola circular activo');
-    console.log('📡 Polling cada', POLL_INTERVAL / 1000, 'segundos');
   </script>
 </body>
 </html>

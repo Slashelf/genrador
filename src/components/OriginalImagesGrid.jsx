@@ -1,9 +1,10 @@
 import React from 'react';
 
 const OriginalImagesGrid = ({ image, formatFileSize }) => {
-  const { availableImages, originalImages } = image;
-  
-  if (!availableImages.length) return null;
+  const availableImages = image.availableImages || [];
+  const { originalImages } = image;
+
+  if (!availableImages.length || !originalImages) return null;
 
   return (
     <div className="mb-8">
@@ -26,7 +27,9 @@ const OriginalImagesGrid = ({ image, formatFileSize }) => {
                 alt={`Imagen original de ${label.toLowerCase()}`}
                 className="w-full h-32 object-cover rounded mb-2"
               />
-              <p className="text-xs text-gray-500">{formatFileSize(imageData.size)}</p>
+              {typeof imageData.size === 'number' && (
+                <p className="text-xs text-gray-500">{formatFileSize(imageData.size)}</p>
+              )}
             </div>
           );
         })}

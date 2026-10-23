@@ -1,49 +1,49 @@
-import { defineMiddleware } from 'astro:middleware';
+import { defineMiddleware } from "astro:middleware";
+import { auth } from "./auth";
+import { buildErrorResponse } from "./lib/generationResponse";
+import { canGenerate } from "./lib/roles";
+import { safeRedirect } from "./lib/redirect";
 
-// Rutas que requieren autenticación
-const protectedRoutes = [
-	'/generate/chibi-sticker',
-	'/generate/figure-collector',
-	'/generate/que-paso-ayer',
-	'/generate/buzz-cut',
-	'/generate/film-noir',
-	'/generate/editorial-portrait',
-	'/generate/yarn-doll',
-	'/generate/pencil-sketch',
-	'/generate/instagram-chibi',
-	'/generate/lego-collection',
-	'/generate/ghibli-style',
-	'/generate/polaroid-chibi',
-	'/generate/ghibli-classic'
-];
-
-// Rutas públicas que no requieren autenticación
-const publicRoutes = [
-	'/',
-	'/login',
-	'/catalog',
-	'/gallery',
-	'/api/auth/login',
-	'/api/auth/logout',
-];
+function json(body: unknown, status: number) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { "Content-Type": "application/json" },
+  });
+}
 
 export const onRequest = defineMiddleware(async (context, next) => {
-	const { url, cookies, redirect } = context;
-	const pathname = url.pathname;
+  const session = await auth.api.getSession({ headers: context.request.headers });
+  context.locals.user = session?.user ?? null;
+  context.locals.session = session?.session ?? null;
 
-	// Verificar si la ruta es una ruta protegida
-	const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route));
-	
-	// Si es una ruta protegida, verificar autenticación
-	if (isProtectedRoute) {
-		const authToken = cookies.get('auth-token');
-		
-		// Si no hay token de autenticación, redirigir a login
-		if (!authToken) {
-			return redirect(`/login?error=auth&redirect=${encodeURIComponent(pathname)}`);
-		}
-	}
+  const { pathname } = context.url;
+  const role = session?.user && "role" in session.user ? String(session.user.role || "") : "";
+  const signedIn = Boolean(session?.user);
+  const isGenerate = pathname === "/generate"
+    || pathname.startsWith("/generate/")
+    || pathname === "/api/generate"
+    || pathname.startsWith("/api/generate/");
+  const isAdminArea = pathname.startsWith("/admin");
+  const isApi = pathname.startsWith("/api/");
 
-	// Continuar con la petición
-	return next();
+  if ((isGenerate || isAdminArea) && !signedIn) {
+    if (isApi) {
+      return json(buildErrorResponse("Debes iniciar sesión"), 401);
+    }
+    const redirectTo = safeRedirect(pathname);
+    return context.redirect(`/login?error=auth&redirect=${encodeURIComponent(redirectTo)}`);
+  }
+
+  if (isGenerate && !canGenerate(role)) {
+    if (isApi) {
+      return json(buildErrorResponse("No autorizado"), 403);
+    }
+    return context.redirect("/");
+  }
+
+  if (isAdminArea && role !== "admin") {
+    return context.redirect("/");
+  }
+
+  return next();
 });

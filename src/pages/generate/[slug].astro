@@ -1,0 +1,48 @@
+---
+export const prerender = false;
+
+import Layout from "../../layouts/Layout.astro";
+import GenerateForm from "../../components/GenerateForm.jsx";
+import Icon from "../../components/Icon.jsx";
+import { getStyleBySlug } from "../../server/records";
+
+const slug = Astro.params.slug;
+const style = slug ? await getStyleBySlug(slug) : null;
+if (!style || !style.active) {
+  return new Response("Estilo no disponible", { status: 404 });
+}
+---
+
+<Layout title={`${style.name} | Universidad Tomás Frías`} description={style.description}>
+  <section class="bg-primary-800 py-16">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white">
+      <div class="flex justify-center mb-4 text-secondary-400">
+        <Icon name={style.icon} className="w-10 h-10" />
+      </div>
+      <h1 class="text-4xl sm:text-5xl font-bold mb-6">
+        <span class="text-secondary-400">{style.name}</span>
+      </h1>
+      <p class="text-xl mb-8 max-w-2xl mx-auto text-primary-100">{style.description}</p>
+    </div>
+  </section>
+
+  <section class="py-16 bg-accent-50">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="bg-white rounded-2xl shadow-elegant overflow-hidden">
+        <div class="bg-gradient-to-r from-primary-600 to-primary-800 px-8 py-6">
+          <h2 class="text-2xl font-bold text-white mb-2">Genera tu imagen</h2>
+          <p class="text-primary-100">Sube las imágenes necesarias y personaliza los detalles</p>
+        </div>
+        <GenerateForm
+          client:load
+          slug={style.slug}
+          name={style.name}
+          description={style.description}
+          icon={style.icon}
+          detailsHint={style.detailsHint}
+          requiresCelebrity={style.requiresCelebrity}
+        />
+      </div>
+    </div>
+  </section>
+</Layout>

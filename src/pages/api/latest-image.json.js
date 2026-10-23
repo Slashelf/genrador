@@ -1,7 +1,6 @@
 export const prerender = false;
 
-import { getGeneratedImages } from '../../lib/galleryService.js';
-import { normalizeImageData } from '../../lib/styleConfig.js';
+import { getGeneratedImages } from '../../server/gallery';
 
 export async function GET() {
   try {
@@ -20,14 +19,12 @@ export async function GET() {
       });
     }
 
-    // Normalizar y obtener la última imagen
-    const normalizedImages = images.map(img => normalizeImageData(img));
-    const latest = normalizedImages[0]; // Ya están ordenadas por fecha descendente
-    
+    const latest = images[0];
+
     return new Response(JSON.stringify({
       timestamp: latest.timestamp || Date.now(),
       image: latest,
-      totalImages: normalizedImages.length,
+      totalImages: images.length,
       imageId: latest.id || latest.fileName
     }), {
       headers: { 

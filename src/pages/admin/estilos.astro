@@ -1,0 +1,59 @@
+---
+export const prerender = false;
+
+import Layout from "../../layouts/Layout.astro";
+import { listStyles } from "../../server/records";
+import { ICON_OPTIONS } from "../../db/style-seeds";
+
+const styles = await listStyles();
+const saved = Astro.url.searchParams.get("saved") === "1";
+---
+
+<Layout title="Estilos y prompts" description="Editar las plantillas de generación">
+  <section class="bg-primary-800 py-12 text-white">
+    <div class="max-w-5xl mx-auto px-4">
+      <h1 class="text-4xl font-bold">Estilos y prompts</h1>
+      <p class="mt-3 text-primary-100">La plantilla se guarda en la base y la siguiente generación la usa tal cual.</p>
+    </div>
+  </section>
+
+  <section class="max-w-5xl mx-auto px-4 py-10 space-y-8">
+    {saved && (
+      <p class="rounded-lg bg-green-50 border border-green-200 text-green-800 px-4 py-3">Estilo guardado.</p>
+    )}
+    {styles.map((style) => (
+      <form method="POST" action="/api/admin/styles" class="bg-white rounded-2xl shadow-elegant p-6 space-y-4">
+        <input type="hidden" name="id" value={style.id} />
+        <div class="flex items-center justify-between gap-4">
+          <h2 class="text-xl font-bold text-primary-800">{style.name}</h2>
+          <span class="text-sm text-accent-500">{style.slug}</span>
+        </div>
+        <label class="block text-sm font-medium">Nombre
+          <input name="name" value={style.name} required class="mt-1 w-full rounded-lg border px-3 py-2" />
+        </label>
+        <label class="block text-sm font-medium">Descripción
+          <input name="description" value={style.description} required class="mt-1 w-full rounded-lg border px-3 py-2" />
+        </label>
+        <label class="block text-sm font-medium">Icono
+          <select name="icon" class="mt-1 w-full rounded-lg border px-3 py-2">
+            {ICON_OPTIONS.map((icon) => (
+              <option value={icon} selected={icon === style.icon}>{icon}</option>
+            ))}
+          </select>
+        </label>
+        <label class="block text-sm font-medium">Ayuda del campo de detalles
+          <input name="detailsHint" value={style.detailsHint} required class="mt-1 w-full rounded-lg border px-3 py-2" />
+        </label>
+        <label class="block text-sm font-medium">Plantilla del prompt
+          <textarea name="promptTemplate" required rows="12" class="mt-1 w-full rounded-lg border px-3 py-2 font-mono text-sm">{style.promptTemplate}</textarea>
+        </label>
+        <p class="text-xs text-accent-500">Usa {"{{celebrityName}}"} y {"{{extraDetails}}"} donde corresponda.</p>
+        <label class="flex items-center gap-2 text-sm">
+          <input type="checkbox" name="active" value="1" checked={style.active} />
+          Activo
+        </label>
+        <button type="submit" class="rounded-lg bg-primary-700 px-4 py-2 text-white">Guardar</button>
+      </form>
+    ))}
+  </section>
+</Layout>

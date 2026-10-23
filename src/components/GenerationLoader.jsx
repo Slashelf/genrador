@@ -5,16 +5,16 @@ const GenerationLoader = ({ isVisible, onCancel }) => {
   const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
 
   const motivationalMessages = [
-    "🎨 Preparando los pinceles digitales...",
-    "🤖 La IA está despertando su creatividad...",
-    "✨ Mezclando píxeles con magia...",
-    "🎭 Creando la escena perfecta...",
-    "🔮 Los algoritmos están trabajando duro...",
-    "🎪 Montando la fiesta épica...",
-    "🌟 Puliendo cada detalle...",
-    "🎬 Dirigiendo la toma perfecta...",
-    "🎨 Aplicando los toques finales...",
-    "🚀 ¡Ya casi tenemos tu obra maestra!"
+    " Preparando los pinceles digitales...",
+    " La IA está despertando su creatividad...",
+    " Mezclando píxeles con magia...",
+    " Creando la escena perfecta...",
+    " Los algoritmos están trabajando duro...",
+    " Montando la fiesta épica...",
+    " Puliendo cada detalle...",
+    " Dirigiendo la toma perfecta...",
+    " Aplicando los toques finales...",
+    " ¡Ya casi tenemos tu obra maestra!"
   ];
 
   useEffect(() => {
@@ -59,7 +59,7 @@ const GenerationLoader = ({ isVisible, onCancel }) => {
             
             {/* Círculo interno pulsando */}
             <div className="absolute inset-3 bg-primary-600 rounded-full animate-pulse flex items-center justify-center">
-              <span className="text-white text-xl">🎨</span>
+              <span className="text-white text-xl"></span>
             </div>
           </div>
           
@@ -71,7 +71,7 @@ const GenerationLoader = ({ isVisible, onCancel }) => {
           {/* Contador de tiempo */}
           <div className="bg-primary-50 rounded-lg px-4 py-2 inline-block mb-4">
             <span className="text-primary-600 font-mono text-lg font-semibold">
-              ⏱️ {formatTime(elapsedTime)}
+               {formatTime(elapsedTime)}
             </span>
           </div>
         </div>
@@ -101,7 +101,7 @@ const GenerationLoader = ({ isVisible, onCancel }) => {
 
         {/* Consejos mientras espera */}
         <div className="bg-accent-50 rounded-lg p-4 mb-6">
-          <h4 className="font-semibold text-accent-700 mb-2">💡 Mientras esperas:</h4>
+          <h4 className="font-semibold text-accent-700 mb-2"> Mientras esperas:</h4>
           <ul className="text-sm text-accent-600 space-y-1 text-left">
             <li>• Las mejores imágenes tardan un poco más</li>
             <li>• La IA está analizando cada detalle</li>

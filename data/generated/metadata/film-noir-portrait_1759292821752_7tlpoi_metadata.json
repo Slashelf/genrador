@@ -1,0 +1,30 @@
+{
+  "generatedImage": {
+    "fileName": "film-noir-portrait_1759292821752_7tlpoi.png",
+    "url": "/api/images/film-noir-portrait_1759292821752_7tlpoi.png",
+    "createdAt": "2025-10-01T04:27:04.676Z",
+    "generationTime": "16.76",
+    "size": 1579777
+  },
+  "originalImages": {
+    "person": {
+      "fileName": "film-noir-portrait_1759292821752_7tlpoi_person_original.png",
+      "url": "/api/images/film-noir-portrait_1759292821752_7tlpoi_person_original.png",
+      "size": 3339568
+    }
+  },
+  "generation": {
+    "styleId": "film-noir-portrait",
+    "type": "film-noir-portrait",
+    "theme": "art-deco-lounge",
+    "extraDetails": "Film Noir Portrait estándar con ambiente Art Deco",
+    "prompt": "Use the uploaded headshot to create a Film Noir-inspired portrait set in 19th century Americas (1800s-1890s).\n\nPhotography Style: Historical Film Noir Portrait - 19th Century Americas\n\nSetting: Vintage 1800s American Interior - Victorian Era Elegance\n\nThe transformation should include:\n- Classic sepia-toned or black and white aesthetic with high contrast and vintage grain texture\n- Soft, dramatic lighting reminiscent of early photography (daguerreotype/tintype style)\n- 19th century American interior elements: Victorian furniture, ornate wooden panels, velvet curtains, antique oil lamps\n- Period-accurate clothing and styling from 1800s Americas (Victorian fashion, tailored suits, elegant dresses)\n- Historical ambiance with vintage architectural details (carved wood, brass fixtures, crystal chandeliers)\n- Moody, cinematic quality with strong shadows and highlights typical of early portrait photography\n- Aged photograph appearance with slight vignetting and subtle paper texture\n- Timeless 1800s American sophistication and historical mystique\n- Professional portrait composition with depth and vintage character\n- Elements that evoke the Old West, Victorian parlors, or Belle Époque salons of 19th century Americas",
+    "model": "nano-banana-oss",
+    "quality": "medium",
+    "size": "1024x1024",
+    "style": "Film Noir",
+    "setting": "Art Deco Lounge"
+  },
+  "timestamp": 1759292824677,
+  "version": "1.0"
+}

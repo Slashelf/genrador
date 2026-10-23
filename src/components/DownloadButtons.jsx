@@ -1,8 +1,9 @@
 import React from 'react';
 
 const DownloadButtons = ({ image }) => {
-  const { availableDownloads, originalImages } = image;
-  
+  const availableDownloads = image.availableDownloads || [];
+  const { originalImages } = image;
+
   if (!availableDownloads.length) return null;
 
   return (
@@ -12,7 +13,7 @@ const DownloadButtons = ({ image }) => {
         return (
           <a 
             key={download.key}
-            href={imageData.url} 
+            href={imageData.downloadUrl || imageData.url} 
             download={imageData.fileName}
             className="bg-gray-600 text-white px-4 py-2 rounded text-sm hover:bg-gray-700 transition-colors text-center block"
           >

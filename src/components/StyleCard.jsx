@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Button from './Button.jsx';
+import Icon from './Icon.jsx';
 
 const StyleCard = (props) => {
   const { 
@@ -9,7 +10,8 @@ const StyleCard = (props) => {
     images = [],
     totalGenerated = 0,
     onClick,
-    className = ''
+    className = '',
+    icon = 'image',
   } = props;
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
@@ -29,12 +31,7 @@ const StyleCard = (props) => {
       onClick({ id, title, description });
     } else {
       // Navegar directamente a la página específica del estilo en la carpeta generate
-      if (id === 'que-paso-ayer-fiesta' || id === 'que-paso-ayer') {
-        window.location.href = '/generate/que-paso-ayer';
-      } else {
-        // Para otros estilos, usar el id como página en generate
-        window.location.href = `/generate/${id}`;
-      }
+      window.location.href = `/generate/${id}`;
     }
   };
 
@@ -48,11 +45,11 @@ const StyleCard = (props) => {
             <img 
               src={images[currentImageIndex]} 
               alt={`${title} ejemplo ${currentImageIndex + 1}`}
+              width="640"
+              height="640"
+              loading="lazy"
+              decoding="async"
               className="w-full h-full object-cover transition-all duration-500"
-              onError={(e) => {
-                // Si falla la imagen generada, usar placeholder
-                e.target.src = 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80';
-              }}
             />
             
             {/* Overlay para imágenes generadas */}
@@ -127,7 +124,8 @@ const StyleCard = (props) => {
       {/* Contenido de la tarjeta */}
       <div className="p-6">
         {/* Título */}
-        <h3 className="text-xl font-bold text-primary-800 mb-3 group-hover:text-primary-700 transition-colors">
+        <h3 className="text-xl font-bold text-primary-800 mb-3 group-hover:text-primary-700 transition-colors flex items-center gap-2">
+          <Icon name={icon} className="w-5 h-5" />
           {title}
         </h3>
         
