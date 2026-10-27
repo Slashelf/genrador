@@ -24,7 +24,8 @@ export default defineConfig({
     plugins: [tailwindcss()],
     server:{
       allowedHosts: [
-        "feria.inginformatica.app"
+        "feria.inginformatica.app",
+        "feria.cimasoft.app",
       ]
     }
   },

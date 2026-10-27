@@ -12,6 +12,7 @@ export const auth = betterAuth({
     "http://127.0.0.1:4321",
     "http://192.168.*:4321",
     "https://feria.inginformatica.app",
+    "https://feria.cimasoft.app",
   ],
   emailAndPassword: {
     enabled: true,
