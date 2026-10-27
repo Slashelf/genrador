@@ -1,4 +1,5 @@
 import type { generations, styles } from "../db/schema";
+import { imageModelLabel } from "./imageModels";
 
 type GenerationRow = typeof generations.$inferSelect;
 type StyleRow = typeof styles.$inferSelect;
@@ -18,6 +19,8 @@ export type GalleryImage = {
     extraDetails: string;
     prompt: string;
     quality: string;
+    model: string;
+    modelLabel: string;
   };
   styleId: string;
   styleName: string;
@@ -95,6 +98,8 @@ export function toGalleryImage(row: GenerationRow, style: StyleRow | null): Gall
       extraDetails,
       prompt: row.promptUsed,
       quality: row.quality,
+      model: row.model,
+      modelLabel: imageModelLabel(row.model),
     },
     styleId: row.styleId,
     styleName,

@@ -1,5 +1,5 @@
 import { randomBytes } from "node:crypto";
-import { IMAGE_MODEL, requestEditedImage } from "./openaiImage";
+import { requestEditedImage } from "./openaiImage";
 import { createThumbnail, writeGeneratedSet } from "./images";
 import { renderPrompt } from "./prompt";
 import { insertGeneration, type StyleRecord } from "../server/records";
@@ -17,6 +17,7 @@ export async function generateForStyle(input: {
   choiceLabel?: string;
   reference?: Buffer;
   quality: "medium" | "high";
+  model: string;
 }) {
   const style = input.style;
   if (!style.active) {
@@ -40,6 +41,7 @@ export async function generateForStyle(input: {
     celebrity: input.celebrity ?? input.reference,
     prompt,
     quality: input.quality,
+    model: input.model,
     aspectRatio: style.aspectRatio || "1:1",
   });
   const thumb = await createThumbnail(output);
@@ -61,7 +63,7 @@ export async function generateForStyle(input: {
     extraDetails: storedDetails,
     celebrityName: input.celebrityName?.trim() || null,
     quality: input.quality,
-    model: IMAGE_MODEL,
+    model: input.model,
     outputFile: files.outputFile,
     thumbFile: files.thumbFile,
     personFile: files.personFile,

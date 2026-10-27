@@ -91,6 +91,10 @@ const ImageModal = ({ image, isOpen, onClose }) => {
                   </p>
                 </div>
                 <div className="bg-white p-3 rounded-lg">
+                  <strong className="text-gray-700">Modelo:</strong>
+                  <p className="text-gray-600 mt-1">{image.generation?.modelLabel || image.generation?.model || 'Sin registro'}</p>
+                </div>
+                <div className="bg-white p-3 rounded-lg">
                   <strong className="text-gray-700">Creado:</strong>
                   <p className="text-gray-600 mt-1">{formatDate(image.createdAt)}</p>
                 </div>

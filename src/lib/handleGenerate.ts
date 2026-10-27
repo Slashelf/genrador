@@ -1,4 +1,5 @@
 import { resolveChoice } from "./choices";
+import { friendlyImageError, resolveImageModel } from "./imageModels";
 import { generateForStyle } from "./generate";
 import { buildErrorResponse, buildSuccessResponse } from "./generationResponse";
 import { readReferenceImage } from "./images";
@@ -23,11 +24,15 @@ export async function handleGenerate(request: Request, slug: string, userId: str
   const person = form.get("person");
   const extraDetails = form.get("extraDetails")?.toString() || "";
   const quality = form.get("quality")?.toString() || "medium";
+  const chosenModel = resolveImageModel(form.get("model")?.toString() || "");
   const celebrity = form.get("celebrity");
   const celebrityName = form.get("celebrityName")?.toString() || "";
   const choice = resolveChoice(style.selectOptions, form.get("choice")?.toString() || "");
   if (!choice.ok) {
     return json(buildErrorResponse(choice.error), 400);
+  }
+  if (!chosenModel.ok) {
+    return json(buildErrorResponse(chosenModel.error), 400);
   }
 
   if (!(person instanceof File)) {
@@ -69,6 +74,7 @@ export async function handleGenerate(request: Request, slug: string, userId: str
       choiceLabel: choice.label,
       reference,
       quality,
+      model: chosenModel.model.id,
     });
 
     if (!result.ok) {
@@ -92,7 +98,7 @@ export async function handleGenerate(request: Request, slug: string, userId: str
       slug: result.style.slug,
     }), 200);
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Error interno del servidor";
-    return json(buildErrorResponse(message), 500);
+    const message = error instanceof Error ? error.message : "";
+    return json(buildErrorResponse(friendlyImageError(message)), 500);
   }
 }

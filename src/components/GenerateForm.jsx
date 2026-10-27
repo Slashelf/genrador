@@ -4,6 +4,7 @@ import Icon from './Icon.jsx';
 import ImageUploader from './ImageUploader.jsx';
 import ResultModal from './ResultModal.jsx';
 import GenerationLoader from './GenerationLoader.jsx';
+import { DEFAULT_IMAGE_MODEL, IMAGE_MODELS } from '../lib/imageModels';
 
 const GenerateForm = ({
   slug,
@@ -21,9 +22,11 @@ const GenerateForm = ({
     extraDetails: '',
     choice: selectMenu?.options?.[0]?.value || '',
     quality: 'medium',
+    model: DEFAULT_IMAGE_MODEL,
   });
 
   const [result, setResult] = useState(null);
+  const [errorMessage, setErrorMessage] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
 
   const handleImageUpload = useCallback((uploaderId, file) => {
@@ -45,14 +48,15 @@ const GenerateForm = ({
   const isFormValid = Boolean(formData.personImage) && (!requiresCelebrity || Boolean(formData.celebrityImage)) && choiceReady;
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    e?.preventDefault?.();
+    setErrorMessage('');
 
     if (!formData.personImage) {
-      alert('Sube tu foto para continuar');
+      setErrorMessage('Sube tu foto para continuar.');
       return;
     }
     if (requiresCelebrity && !formData.celebrityImage) {
-      alert('Sube la foto de la celebridad');
+      setErrorMessage('Sube la foto de la celebridad.');
       return;
     }
 
@@ -62,6 +66,7 @@ const GenerateForm = ({
     submitData.append('person', formData.personImage);
     submitData.append('extraDetails', formData.extraDetails);
     submitData.append('quality', formData.quality);
+    submitData.append('model', formData.model);
     if (selectMenu) submitData.append('choice', formData.choice);
     if (requiresCelebrity) {
       submitData.append('celebrity', formData.celebrityImage);
@@ -77,10 +82,10 @@ const GenerateForm = ({
       if (payload.success) {
         setResult(payload);
       } else {
-        alert(`Error: ${payload.error || 'No se pudo generar la imagen'}`);
+        setErrorMessage(payload.error || 'No se pudo crear la imagen. Puedes intentarlo otra vez.');
       }
-    } catch (error) {
-      alert(`Error: ${error.message || 'Error desconocido'}`);
+    } catch {
+      setErrorMessage('No se pudo crear la imagen. Puedes intentarlo otra vez.');
     } finally {
       setIsGenerating(false);
     }
@@ -191,6 +196,39 @@ const GenerateForm = ({
         </div>
 
         <div className="space-y-4">
+          <label className="block text-sm font-semibold text-primary-800">
+            Modelo
+          </label>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {IMAGE_MODELS.map((item) => {
+              const selected = formData.model === item.id;
+              return (
+                <label
+                  key={item.id}
+                  className={`flex items-start gap-3 cursor-pointer rounded-2xl border-2 p-4 min-h-14 ${
+                    selected ? 'border-primary-600 bg-primary-50' : 'border-accent-300 bg-white'
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="model"
+                    value={item.id}
+                    checked={selected}
+                    onChange={handleInputChange}
+                    className="mt-1 h-5 w-5"
+                  />
+                  <span>
+                    <span className="block font-medium text-primary-800">{item.label}</span>
+                    <span className="block text-sm text-accent-600">{item.id}</span>
+                    <span className="block text-sm font-semibold text-primary-700">{item.price}</span>
+                  </span>
+                </label>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="space-y-4">
           <label className="block text-sm font-semibold text-primary-800 mb-4">
             Calidad de generación
           </label>
@@ -257,6 +295,15 @@ const GenerateForm = ({
         </div>
 
         <p className="text-sm text-accent-600 text-center">{description}</p>
+
+        {errorMessage && (
+          <div role="alert" className="rounded-2xl border border-red-200 bg-red-50 p-5 text-center space-y-4">
+            <p className="text-base text-red-800">{errorMessage}</p>
+            <Button type="button" variant="outline" size="lg" disabled={isGenerating} onClick={() => handleSubmit()}>
+              Reintentar
+            </Button>
+          </div>
+        )}
 
         <div className="flex justify-center pt-2">
           <Button

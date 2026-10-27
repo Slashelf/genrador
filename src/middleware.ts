@@ -1,3 +1,4 @@
+import "dotenv/config";
 import { defineMiddleware } from "astro:middleware";
 import { auth } from "./auth";
 import { buildErrorResponse } from "./lib/generationResponse";
