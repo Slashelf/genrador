@@ -9,6 +9,8 @@ export const auth = betterAuth({
   baseURL: process.env.BETTER_AUTH_URL || "http://localhost:4321",
   trustedOrigins: [
     "http://localhost:4321",
+    "http://127.0.0.1:4321",
+    "http://192.168.*:4321",
     "https://feria.inginformatica.app",
   ],
   emailAndPassword: {

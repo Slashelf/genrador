@@ -13,6 +13,9 @@ export async function generateForStyle(input: {
   celebrityFileName?: string;
   celebrityName?: string;
   extraDetails?: string;
+  choice?: string;
+  choiceLabel?: string;
+  reference?: Buffer;
   quality: "medium" | "high";
 }) {
   const style = input.style;
@@ -24,17 +27,20 @@ export async function generateForStyle(input: {
   }
 
   const extraDetails = input.extraDetails?.trim() || "";
+  const storedDetails = [input.choiceLabel?.trim(), extraDetails].filter(Boolean).join(". ");
   const prompt = renderPrompt(style.promptTemplate, {
     celebrityName: input.celebrityName,
     extraDetails,
+    choice: input.choice,
   });
 
   const started = Date.now();
   const output = await requestEditedImage({
     person: input.person,
-    celebrity: input.celebrity,
+    celebrity: input.celebrity ?? input.reference,
     prompt,
     quality: input.quality,
+    aspectRatio: style.aspectRatio || "1:1",
   });
   const thumb = await createThumbnail(output);
   const stamp = `${style.id}_${Date.now()}_${randomBytes(3).toString("hex")}`;
@@ -52,7 +58,7 @@ export async function generateForStyle(input: {
     styleId: style.id,
     userId: input.userId,
     promptUsed: prompt,
-    extraDetails,
+    extraDetails: storedDetails,
     celebrityName: input.celebrityName?.trim() || null,
     quality: input.quality,
     model: IMAGE_MODEL,
@@ -77,7 +83,7 @@ export async function generateForStyle(input: {
     celebrityFile: files.celebrityFile,
     personName: input.personName,
     celebrityFileName: input.celebrityFileName,
-    extraDetails,
+    extraDetails: storedDetails,
     celebrityName: input.celebrityName,
   };
 }

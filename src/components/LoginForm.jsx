@@ -37,7 +37,7 @@ export default function LoginForm({ redirectTo }) {
           type="email"
           required
           autoFocus
-          className="appearance-none relative block w-full px-3 py-3 border border-primary-300 text-gray-900 rounded-lg"
+          className="appearance-none relative block w-full px-4 py-4 text-lg border border-primary-300 text-gray-900 rounded-2xl min-h-14"
         />
       </div>
       <div>
@@ -47,7 +47,7 @@ export default function LoginForm({ redirectTo }) {
           name="password"
           type="password"
           required
-          className="appearance-none relative block w-full px-3 py-3 border border-primary-300 text-gray-900 rounded-lg"
+          className="appearance-none relative block w-full px-4 py-4 text-lg border border-primary-300 text-gray-900 rounded-2xl min-h-14"
         />
       </div>
       <button

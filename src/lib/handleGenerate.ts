@@ -1,5 +1,7 @@
+import { resolveChoice } from "./choices";
 import { generateForStyle } from "./generate";
 import { buildErrorResponse, buildSuccessResponse } from "./generationResponse";
+import { readReferenceImage } from "./images";
 import { getStyleBySlug } from "../server/records";
 
 const MAX_BYTES = 15 * 1024 * 1024;
@@ -23,6 +25,10 @@ export async function handleGenerate(request: Request, slug: string, userId: str
   const quality = form.get("quality")?.toString() || "medium";
   const celebrity = form.get("celebrity");
   const celebrityName = form.get("celebrityName")?.toString() || "";
+  const choice = resolveChoice(style.selectOptions, form.get("choice")?.toString() || "");
+  if (!choice.ok) {
+    return json(buildErrorResponse(choice.error), 400);
+  }
 
   if (!(person instanceof File)) {
     return json(buildErrorResponse("Falta la foto de la persona"), 400);
@@ -40,6 +46,15 @@ export async function handleGenerate(request: Request, slug: string, userId: str
     return json(buildErrorResponse("La foto supera el tamaño permitido"), 400);
   }
 
+  let reference: Buffer | undefined;
+  if (style.referenceFile && !style.requiresCelebrity) {
+    const bytes = readReferenceImage(style.referenceFile);
+    if (!bytes) {
+      return json(buildErrorResponse(`Falta la foto de referencia. Coloca ${style.referenceFile} en data/references`), 400);
+    }
+    reference = bytes;
+  }
+
   try {
     const result = await generateForStyle({
       style,
@@ -50,6 +65,9 @@ export async function handleGenerate(request: Request, slug: string, userId: str
       celebrityFileName: celebrity instanceof File ? celebrity.name : undefined,
       celebrityName,
       extraDetails,
+      choice: choice.prompt,
+      choiceLabel: choice.label,
+      reference,
       quality,
     });
 

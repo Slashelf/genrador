@@ -43,14 +43,41 @@ async function seedAdmin() {
   });
 }
 
+const REFRESH_IDS = new Set([
+  "epoca-clasica",
+  "frutinovela-carcel",
+  "personaje-frutinovela",
+  "el-gran-premio",
+  "optimus-prime",
+  "mini-chibi-mano",
+]);
+
 async function seedStyles() {
   for (const style of STYLE_SEEDS) {
     const current = (await db.select().from(styles).where(eq(styles.id, style.id)))[0];
-    if (current) continue;
-    await db.insert(styles).values({
-      ...style,
-      active: true,
-    });
+    if (!current) {
+      await db.insert(styles).values({
+        ...style,
+        active: true,
+      });
+      continue;
+    }
+    if (REFRESH_IDS.has(style.id)) {
+      await db.update(styles).set({
+        slug: style.slug,
+        name: style.name,
+        description: style.description,
+        icon: style.icon,
+        promptTemplate: style.promptTemplate,
+        detailsHint: style.detailsHint,
+        selectOptions: "selectOptions" in style ? style.selectOptions : null,
+        referenceFile: "referenceFile" in style ? style.referenceFile : null,
+        aspectRatio: "aspectRatio" in style ? style.aspectRatio : "1:1",
+        sortOrder: style.sortOrder,
+      }).where(eq(styles.id, style.id));
+      continue;
+    }
+    await db.update(styles).set({ sortOrder: style.sortOrder }).where(eq(styles.id, style.id));
   }
 }
 

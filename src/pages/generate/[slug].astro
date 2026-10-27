@@ -4,6 +4,7 @@ export const prerender = false;
 import Layout from "../../layouts/Layout.astro";
 import GenerateForm from "../../components/GenerateForm.jsx";
 import Icon from "../../components/Icon.jsx";
+import { parseStyleChoices } from "../../lib/choices";
 import { getStyleBySlug } from "../../server/records";
 
 const slug = Astro.params.slug;
@@ -11,6 +12,11 @@ const style = slug ? await getStyleBySlug(slug) : null;
 if (!style || !style.active) {
   return new Response("Estilo no disponible", { status: 404 });
 }
+
+const menu = parseStyleChoices(style.selectOptions);
+const selectMenu = menu
+  ? { label: menu.label, options: menu.options.map((option) => ({ value: option.value, label: option.label })) }
+  : null;
 ---
 
 <Layout title={`${style.name} | Universidad Tomás Frías`} description={style.description}>
@@ -41,6 +47,7 @@ if (!style || !style.active) {
           icon={style.icon}
           detailsHint={style.detailsHint}
           requiresCelebrity={style.requiresCelebrity}
+          selectMenu={selectMenu}
         />
       </div>
     </div>

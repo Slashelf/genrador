@@ -12,12 +12,14 @@ const GenerateForm = ({
   icon = 'image',
   detailsHint = 'Describe la escena o los detalles que quieres',
   requiresCelebrity = false,
+  selectMenu = null,
 }) => {
   const [formData, setFormData] = useState({
     personImage: null,
     celebrityImage: null,
     celebrityName: '',
     extraDetails: '',
+    choice: selectMenu?.options?.[0]?.value || '',
     quality: 'medium',
   });
 
@@ -39,7 +41,8 @@ const GenerateForm = ({
     }));
   }, []);
 
-  const isFormValid = Boolean(formData.personImage) && (!requiresCelebrity || Boolean(formData.celebrityImage));
+  const choiceReady = !selectMenu || selectMenu.options.some((option) => option.value === formData.choice);
+  const isFormValid = Boolean(formData.personImage) && (!requiresCelebrity || Boolean(formData.celebrityImage)) && choiceReady;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -59,6 +62,7 @@ const GenerateForm = ({
     submitData.append('person', formData.personImage);
     submitData.append('extraDetails', formData.extraDetails);
     submitData.append('quality', formData.quality);
+    if (selectMenu) submitData.append('choice', formData.choice);
     if (requiresCelebrity) {
       submitData.append('celebrity', formData.celebrityImage);
       submitData.append('celebrityName', formData.celebrityName);
@@ -102,7 +106,7 @@ const GenerateForm = ({
 
   return (
     <>
-      <form onSubmit={handleSubmit} className="p-8 space-y-8">
+      <form onSubmit={handleSubmit} className="p-5 sm:p-8 space-y-8">
         <div className={`grid grid-cols-1 ${requiresCelebrity ? 'lg:grid-cols-2' : ''} gap-8`}>
           <div className="space-y-4">
             <label className="block text-sm font-semibold text-primary-800 mb-2">
@@ -128,6 +132,25 @@ const GenerateForm = ({
             </div>
           )}
         </div>
+
+        {selectMenu && (
+          <div className="space-y-4">
+            <label htmlFor="choice" className="block text-sm font-semibold text-primary-800 mb-2">
+              {selectMenu.label}
+            </label>
+            <select
+              id="choice"
+              name="choice"
+              value={formData.choice}
+              onChange={handleInputChange}
+              className="w-full px-4 py-4 text-lg border border-accent-300 rounded-2xl bg-white text-primary-800 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-colors min-h-14"
+            >
+              {selectMenu.options.map((option) => (
+                <option key={option.value} value={option.value}>{option.label}</option>
+              ))}
+            </select>
+          </div>
+        )}
 
         <div className={`grid grid-cols-1 ${requiresCelebrity ? 'lg:grid-cols-2' : ''} gap-8`}>
           {requiresCelebrity && (

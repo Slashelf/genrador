@@ -23,20 +23,20 @@ const styles = styleRows.map((style) => ({
 	title="Catálogo AI - Universidad Tomás Frías"
 	description="Explora nuestra colección de estilos AI para generar imágenes increíbles."
 >
-	<section class="bg-primary-800 py-20">
+	<section class="bg-primary-800 py-10 sm:py-16">
 		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white">
-			<h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6">
-				<span class="text-secondary-400">Catálogo</span> de Estilos AI
+			<h1 class="text-4xl sm:text-5xl font-bold mb-3">
+				<span class="text-secondary-400">Elige</span> tu estilo
 			</h1>
-			<p class="text-xl lg:text-2xl mb-8 max-w-3xl mx-auto text-primary-100">
-				Explora los estilos y elige el que quieras generar.
+			<p class="text-lg sm:text-xl max-w-3xl mx-auto text-primary-100">
+				Toca una tarjeta y sube tu foto.
 			</p>
 		</div>
 	</section>
 
-	<section class="py-16 bg-accent-50">
+	<section class="py-6 sm:py-12 bg-primary-50">
 		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-			<div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+			<div class="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-8">
 				{styles.map((style) => (
 					<StyleCard
 						id={style.id}

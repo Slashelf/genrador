@@ -36,7 +36,7 @@ const StyleCard = (props) => {
   };
 
   return (
-    <div className={`group bg-white rounded-2xl overflow-hidden shadow-elegant hover:shadow-elegant-xl transition-all duration-300 hover:-translate-y-1 cursor-pointer ${className}`}>
+    <div className={`group bg-white rounded-3xl overflow-hidden shadow-elegant hover:shadow-elegant-xl transition-all duration-300 md:hover:-translate-y-1 cursor-pointer ${className}`}>
       {/* Imagen cuadrada grande */}
       <div className="aspect-square relative overflow-hidden">
         {/* Carousel de imágenes */}

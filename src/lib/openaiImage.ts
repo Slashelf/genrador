@@ -1,16 +1,11 @@
-import OpenAI, { toFile } from "openai";
+export const IMAGE_MODEL = "grok-imagine-image-2.0";
 
-export const IMAGE_MODEL = "gpt-image-1";
+const EDIT_URL = "https://api.x.ai/v1/images/edits";
 
-function client() {
-  const apiKey = process.env.OPENAI_API_KEY;
-  if (!apiKey) {
-    throw new Error("OPENAI_API_KEY no está configurada");
-  }
-  return new OpenAI({
-    apiKey,
-    baseURL: process.env.OPENAI_BASE_URL || "https://api.laozhang.ai/v1",
-  });
+type ImageRef = { type: "image_url"; url: string };
+
+function dataUrl(bytes: Buffer) {
+  return `data:image/png;base64,${bytes.toString("base64")}`;
 }
 
 export async function requestEditedImage(input: {
@@ -18,23 +13,58 @@ export async function requestEditedImage(input: {
   celebrity?: Buffer;
   prompt: string;
   quality: "medium" | "high";
+  aspectRatio?: string;
 }) {
-  const images = [await toFile(input.person, "person.png", { type: "image/png" })];
-  if (input.celebrity) {
-    images.push(await toFile(input.celebrity, "celebrity.png", { type: "image/png" }));
+  const apiKey = process.env.XAI_API_KEY;
+  if (!apiKey) {
+    throw new Error("XAI_API_KEY no está configurada");
   }
 
-  const response = await client().images.edit({
+  const images: ImageRef[] = [{ type: "image_url", url: dataUrl(input.person) }];
+  if (input.celebrity) {
+    images.push({ type: "image_url", url: dataUrl(input.celebrity) });
+  }
+
+  const body: Record<string, unknown> = {
     model: IMAGE_MODEL,
-    image: images,
     prompt: input.prompt,
-    quality: input.quality,
-    size: "1024x1024",
+    aspect_ratio: ["1:1", "3:4", "4:3", "9:16", "16:9", "2:3", "3:2"].includes(input.aspectRatio || "")
+      ? input.aspectRatio
+      : "1:1",
+    quality: "medium",
+    resolution: input.quality === "high" ? "2k" : "1k",
+    response_format: "b64_json",
+  };
+  if (images.length === 1) body.image = images[0];
+  else body.images = images;
+
+  const response = await fetch(EDIT_URL, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
   });
 
-  const imageBase64 = response.data?.[0]?.b64_json;
-  if (!imageBase64) {
-    throw new Error("El proveedor no devolvió una imagen");
+  const payload = await response.json().catch(() => null) as {
+    data?: { b64_json?: string; url?: string }[];
+    error?: { message?: string };
+  } | null;
+
+  if (!response.ok) {
+    if (response.status === 401 || response.status === 403) {
+      throw new Error("La clave de xAI no es válida o no tiene permiso");
+    }
+    throw new Error("No se pudo generar la imagen");
   }
-  return Buffer.from(imageBase64, "base64");
+
+  const first = payload?.data?.[0];
+  if (first?.b64_json) return Buffer.from(first.b64_json, "base64");
+  if (first?.url) {
+    const image = await fetch(first.url);
+    if (!image.ok) throw new Error("El proveedor no devolvió una imagen");
+    return Buffer.from(await image.arrayBuffer());
+  }
+  throw new Error("El proveedor no devolvió una imagen");
 }

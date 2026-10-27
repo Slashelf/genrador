@@ -21,11 +21,11 @@ function sample(style: (typeof STYLE_SEEDS)[number]) {
 }
 
 describe("formato de respuesta", () => {
-  it("usa las mismas claves en los 13 estilos", () => {
+  it("usa las mismas claves en todos los estilos", () => {
     const bodies = STYLE_SEEDS.map(sample);
     const signatures = new Set(bodies.map(successKeySignature));
     expect(signatures.size).toBe(1);
-    expect(bodies).toHaveLength(13);
+    expect(bodies).toHaveLength(STYLE_SEEDS.length);
     for (const body of bodies) {
       expect(body.success).toBe(true);
       expect(typeof body.message).toBe("string");

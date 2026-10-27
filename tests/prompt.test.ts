@@ -17,6 +17,14 @@ describe("plantilla de prompt", () => {
     expect(prompt).toBe("Foto con Ada. Nota: luces rojas");
   });
 
+  it("sustituye la época y la quita si no hay elección", () => {
+    expect(renderPrompt("Óleo. {{choice}}\n\nNota: {{extraDetails}}", {
+      choice: "Marco dorado",
+      extraDetails: "capa roja",
+    })).toBe("Óleo. Marco dorado\n\nNota: capa roja");
+    expect(renderPrompt("Óleo\n\nEra: {{choice}}", { choice: "  " })).toBe("Óleo");
+  });
+
   it("quita el placeholder si no hay detalles", () => {
     const prompt = renderPrompt("Base\n\nAdditional details: {{extraDetails}}", {
       extraDetails: "   ",
@@ -37,6 +45,9 @@ describe("plantilla de prompt", () => {
         icon text NOT NULL,
         prompt_template text NOT NULL,
         details_hint text NOT NULL,
+        select_options text,
+        reference_file text,
+        aspect_ratio text DEFAULT '1:1' NOT NULL,
         requires_celebrity integer DEFAULT 0 NOT NULL,
         active integer DEFAULT 1 NOT NULL,
         sort_order integer DEFAULT 0 NOT NULL

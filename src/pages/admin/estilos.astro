@@ -47,7 +47,7 @@ const saved = Astro.url.searchParams.get("saved") === "1";
         <label class="block text-sm font-medium">Plantilla del prompt
           <textarea name="promptTemplate" required rows="12" class="mt-1 w-full rounded-lg border px-3 py-2 font-mono text-sm">{style.promptTemplate}</textarea>
         </label>
-        <p class="text-xs text-accent-500">Usa {"{{celebrityName}}"} y {"{{extraDetails}}"} donde corresponda.</p>
+        <p class="text-xs text-accent-500">Usa {"{{celebrityName}}"}, {"{{extraDetails}}"} y {"{{choice}}"} donde corresponda.</p>
         <label class="flex items-center gap-2 text-sm">
           <input type="checkbox" name="active" value="1" checked={style.active} />
           Activo

@@ -3,6 +3,7 @@ import path from "node:path";
 import sharp from "sharp";
 
 export const DATA_DIR = path.resolve(process.cwd(), "data", "generated");
+const REFERENCES_DIR = path.resolve(process.cwd(), "data", "references");
 const THUMB_WIDTH = 640;
 
 export function resolveGeneratedPath(relativePath: string) {
@@ -12,6 +13,15 @@ export function resolveGeneratedPath(relativePath: string) {
   if (full !== root && !full.startsWith(root + path.sep)) return null;
   if (path.extname(full).toLowerCase() === ".json") return null;
   return full;
+}
+
+export function readReferenceImage(fileName: string) {
+  if (!fileName || fileName.includes("\0") || /[\\/]/.test(fileName) || fileName.includes("..")) return null;
+  const root = path.resolve(REFERENCES_DIR);
+  const full = path.resolve(root, fileName);
+  if (full !== root && !full.startsWith(root + path.sep)) return null;
+  if (!fs.existsSync(full)) return null;
+  return fs.readFileSync(full);
 }
 
 export async function createThumbnail(input: Buffer) {

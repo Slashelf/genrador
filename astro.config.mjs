@@ -13,6 +13,13 @@ export default defineConfig({
   
   integrations: [react()],
 
+  server: {
+    // Windows resuelve localhost a 127.0.0.1. Sin esto Astro queda solo en ::1
+    // y el navegador no puede conectar.
+    host: "0.0.0.0",
+    port: 4321,
+  },
+
   vite: {
     plugins: [tailwindcss()],
     server:{

@@ -36,11 +36,12 @@ const isAdmin = Astro.locals.user?.role === "admin";
 			<nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 				<div class="flex justify-between items-center h-16">
 					<!-- Logo/Brand -->
-					<a href="/" class="flex items-center space-x-3 text-white hover:text-secondary-400 transition-colors">
-						<div class="w-8 h-8 bg-white rounded-full flex items-center justify-center">
-							<span class="text-primary-800 font-bold text-sm">AI</span>
+					<a href="/" class="flex items-center space-x-3 text-white hover:text-secondary-400 transition-colors min-h-12">
+						<div class="w-9 h-9 bg-secondary-400 rounded-full flex items-center justify-center">
+							<span class="text-primary-900 font-bold text-sm">AI</span>
 						</div>
-						<span class="font-semibold text-lg">Universidad Tomás Frías</span>
+						<span class="font-semibold text-lg sm:hidden">Feria</span>
+						<span class="font-semibold text-lg hidden sm:inline">Universidad Tomás Frías</span>
 					</a>
 					
 				<!-- Navigation Links -->
@@ -63,8 +64,8 @@ const isAdmin = Astro.locals.user?.role === "admin";
 						<LogoutButton client:load className="text-red-300 hover:text-red-100 transition-colors font-medium" />
 					)}
 				</div>					<!-- Mobile menu button -->
-					<button id="mobile-menu-button" class="md:hidden text-primary-200 hover:text-white">
-						<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<button id="mobile-menu-button" class="md:hidden text-primary-200 hover:text-white min-w-12 min-h-12 flex items-center justify-center" aria-label="Abrir menú">
+						<svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
 						</svg>
 					</button>
@@ -73,13 +74,13 @@ const isAdmin = Astro.locals.user?.role === "admin";
 				<!-- Mobile menu -->
 				<div id="mobile-menu" class="hidden md:hidden pb-4">
 					<div class="flex flex-col space-y-3">
-						<a href="/" class="text-primary-200 hover:text-white transition-colors font-medium px-2 py-1">
+						<a href="/" class="text-white hover:text-secondary-300 transition-colors font-semibold px-2 py-3 text-lg">
 							Inicio
 						</a>
-						<a href="/catalog" class="text-primary-200 hover:text-white transition-colors font-medium px-2 py-1">
+						<a href="/catalog" class="text-white hover:text-secondary-300 transition-colors font-semibold px-2 py-3 text-lg">
 							Catálogo
 						</a>
-						<a href="/gallery" class="text-primary-200 hover:text-white transition-colors font-medium px-2 py-1">
+						<a href="/gallery" class="text-white hover:text-secondary-300 transition-colors font-semibold px-2 py-3 text-lg">
 							Galería
 						</a>
 						{isAdmin && (
@@ -95,9 +96,17 @@ const isAdmin = Astro.locals.user?.role === "admin";
 			</nav>
 		</header>
 
-		<main>
+		<main class="pb-24 md:pb-0">
 			<slot />
 		</main>
+
+		<nav class="md:hidden fixed bottom-0 inset-x-0 z-50 border-t border-primary-100 bg-white/95 backdrop-blur-sm pb-[env(safe-area-inset-bottom)]" aria-label="Navegación de la feria">
+			<div class="grid grid-cols-3">
+				<a href="/" class="flex flex-col items-center justify-center gap-1 py-3 text-sm font-semibold text-primary-800">Inicio</a>
+				<a href="/catalog" class="flex flex-col items-center justify-center gap-1 py-3 text-sm font-semibold text-primary-800">Catálogo</a>
+				<a href="/gallery" class="flex flex-col items-center justify-center gap-1 py-3 text-sm font-semibold text-primary-800">Galería</a>
+			</div>
+		</nav>
 		
 		<!-- Mobile menu script -->
 		<script>

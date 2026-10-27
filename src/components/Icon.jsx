@@ -1,8 +1,14 @@
 import {
+  Apple,
   Blocks,
+  Bot,
   Camera,
+  Citrus,
   Clapperboard,
+  Hand,
   Image,
+  Landmark,
+  Medal,
   Mountain,
   Palette,
   Pencil,
@@ -15,10 +21,16 @@ import {
 } from "lucide-react";
 
 const ICONS = {
+  apple: Apple,
   blocks: Blocks,
+  bot: Bot,
   camera: Camera,
+  citrus: Citrus,
   clapperboard: Clapperboard,
+  hand: Hand,
   image: Image,
+  landmark: Landmark,
+  medal: Medal,
   mountain: Mountain,
   palette: Palette,
   pencil: Pencil,

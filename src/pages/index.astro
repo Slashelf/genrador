@@ -1,5 +1,12 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import { listStyles } from '../server/gallery';
+
+const featured = [
+	{ slug: 'optimus-prime', name: 'Encima de Optimus Prime' },
+	{ slug: 'mini-chibi-mano', name: 'Mini chibi en la mano' },
+];
+const styleCount = (await listStyles()).filter((style) => style.active).length;
 ---
 
 <Layout 
@@ -7,7 +14,7 @@ import Layout from '../layouts/Layout.astro';
 	description="Genera imágenes increíbles con inteligencia artificial. Transforma tus fotos en obras maestras cinematográficas con celebridades y efectos profesionales."
 >
 	<!-- Hero Section -->
-	<section class="relative min-h-screen flex items-center justify-center bg-primary-800 overflow-hidden">
+	<section class="relative min-h-[88svh] md:min-h-screen flex items-center justify-center bg-primary-800 overflow-hidden">
 		<div class="absolute inset-0 bg-primary-900/30"></div>
 		
 		<!-- Animated background elements -->
@@ -42,7 +49,7 @@ import Layout from '../layouts/Layout.astro';
 			<div class="flex flex-col sm:flex-row gap-6 justify-center items-center mb-16">
 				<a 
 					href="/catalog" 
-					class="group bg-secondary-400 hover:bg-secondary-500 text-primary-900 px-12 py-4 rounded-xl text-xl font-semibold transition-all duration-300 shadow-lg shadow-secondary-400/50 hover:shadow-2xl hover:scale-105 flex items-center gap-3"
+					class="group w-full sm:w-auto bg-secondary-400 hover:bg-secondary-500 text-primary-900 px-12 py-4 rounded-2xl text-xl font-semibold transition-all duration-300 shadow-lg shadow-secondary-400/50 hover:shadow-2xl hover:scale-105 flex items-center justify-center gap-3 min-h-14"
 				>
 					<span>Explorar Catálogo</span>
 					<svg class="w-6 h-6 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -58,10 +65,21 @@ import Layout from '../layouts/Layout.astro';
 				</a>
 			</div>
 
+			<div class="flex flex-col sm:flex-row gap-4 justify-center items-stretch max-w-3xl mx-auto">
+				{featured.map((style) => (
+					<a
+						href={`/generate/${style.slug}`}
+						class="flex-1 min-h-14 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/30 px-6 py-4 text-lg font-semibold text-white transition-colors"
+					>
+						{style.name}
+					</a>
+				))}
+			</div>
+
 			<!-- Stats -->
 			<div class="grid grid-cols-1 sm:grid-cols-3 gap-8 max-w-3xl mx-auto">
 				<div class="text-center">
-					<div class="text-3xl sm:text-4xl font-bold text-secondary-400 mb-2">1</div>
+					<div class="text-3xl sm:text-4xl font-bold text-secondary-400 mb-2">{styleCount}</div>
 					<div class="text-primary-200 text-sm sm:text-base">Estilos AI Disponibles</div>
 				</div>
 				<div class="text-center">
