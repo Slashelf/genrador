@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
+    "start": "bun src/db/seed.ts && node ./dist/server/entry.mjs",
     "preview": "astro preview",
     "astro": "astro",
     "test": "vitest run",
