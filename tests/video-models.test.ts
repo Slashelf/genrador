@@ -6,6 +6,7 @@ import {
   VIDEO_DURATION_SECONDS,
   friendlyVideoError,
   resolveVideoAspect,
+  resolveVideoDuration,
   resolveVideoModel,
   resolveVideoResolution,
   videoPrice,
@@ -19,7 +20,8 @@ describe("videos de la feria", () => {
     const style = STYLE_SEEDS.find((item) => item.id === "tokio-nevado");
     expect(style?.kind).toBe("video");
     expect(style?.promptTemplate).toBe(TOKIO_PROMPT);
-    expect(STYLE_SEEDS.filter((item) => item.kind === "video")).toHaveLength(1);
+    expect(STYLE_SEEDS.filter((item) => item.kind === "video")).toHaveLength(5);
+    expect(STYLE_SEEDS.some((item) => item.id.includes("frutinovela"))).toBe(false);
     expect(STYLE_SEEDS.filter((item) => item.kind !== "video").every((item) => item.kind === undefined)).toBe(true);
   });
 
@@ -32,6 +34,10 @@ describe("videos de la feria", () => {
     expect(videoPrice("grok-imagine-video-1.5", "480p")).toBeCloseTo(0.24);
     expect(videoPrice("grok-imagine-video-1.5", "720p")).toBeCloseTo(0.42);
     expect(videoPriceLabel("grok-imagine-video", "480p")).toBe("$0.15 por video");
+    expect(videoPrice("grok-imagine-video", "480p", 6)).toBeCloseTo(0.3);
+    expect(videoPriceLabel("grok-imagine-video-1.5", "720p", 6)).toBe("$0.84 por video");
+    expect(resolveVideoDuration(6).ok && resolveVideoDuration(6).seconds).toBe(6);
+    expect(resolveVideoDuration(10).ok).toBe(false);
   });
 
   it("rechaza modelo, resolución y tamaño que no están en la lista", () => {
@@ -60,5 +66,20 @@ describe("videos de la feria", () => {
     expect(body.message).toBe("Video generado");
     expect(friendlyVideoError("La clave de xAI no es válida o no tiene permiso")).toContain("video");
     expect(friendlyVideoError("No se pudo crear el video. Tardó demasiado. Puedes intentarlo otra vez.")).toContain("Tardó demasiado");
+  });
+
+  it("guarda los videos nuevos con su duración", () => {
+    const byId = Object.fromEntries(STYLE_SEEDS.map((style) => [style.id, style]));
+    expect(byId["poster-naive"]?.kind).toBe("video");
+    expect(byId["poster-naive"]?.videoDuration).toBe(3);
+    expect(byId["poster-naive"]?.promptTemplate.startsWith("Transform the person in the uploaded photo")).toBe(true);
+    expect(byId["asado-lunar"]?.aspectRatio).toBe("16:9");
+    expect(byId["asado-lunar"]?.promptTemplate.endsWith("sharp focus on the main astronaut.")).toBe(true);
+    expect(byId["pelea-te"]?.videoDuration).toBe(3);
+    expect(byId["pelea-te"]?.promptTemplate.includes("one continuous 3-second shot")).toBe(true);
+    expect(byId["pelea-te-larga"]?.videoDuration).toBe(6);
+    expect(byId["pelea-te-larga"]?.promptTemplate.includes("one continuous 6-second shot")).toBe(true);
+    expect(byId["ghibli-classic"]?.promptTemplate.includes("Redraw this photo in Ghibli style")).toBe(false);
+    expect(byId["ghibli-classic"]?.promptTemplate.includes("hand-painted")).toBe(true);
   });
 });

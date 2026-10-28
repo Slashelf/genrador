@@ -1,5 +1,5 @@
 import "dotenv/config";
-import { VIDEO_DURATION_SECONDS, type VideoAspect, type VideoResolution } from "./videoModels";
+import { type VideoAspect, type VideoResolution } from "./videoModels";
 
 const START_URL = "https://api.x.ai/v1/videos/generations";
 const POLL_MS = 5000;
@@ -30,6 +30,7 @@ export async function requestReferenceVideo(input: {
   model: string;
   resolution: VideoResolution;
   aspectRatio: VideoAspect;
+  duration: number;
 }) {
   const apiKey = process.env.XAI_API_KEY?.trim();
   if (!apiKey) throw new Error("XAI_API_KEY no está configurada");
@@ -45,7 +46,7 @@ export async function requestReferenceVideo(input: {
       model: input.model,
       prompt: input.prompt,
       reference_images: [{ url: dataUrl(input.person) }],
-      duration: VIDEO_DURATION_SECONDS,
+      duration: input.duration,
       aspect_ratio: input.aspectRatio,
       resolution: input.resolution,
     }),
@@ -64,7 +65,7 @@ export async function requestReferenceVideo(input: {
   const requestId = startPayload?.request_id;
   if (!requestId) throw new Error("No se pudo crear el video");
 
-  const deadline = Date.now() + TIMEOUT_MS;
+  const deadline = Date.now() + (input.duration > 3 ? 4 * 60 * 1000 : TIMEOUT_MS);
   while (Date.now() < deadline) {
     await new Promise((resolve) => setTimeout(resolve, POLL_MS));
     const result = await fetch(`${START_URL.replace(/\/generations$/, "")}/${requestId}`, {

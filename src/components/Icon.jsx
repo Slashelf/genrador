@@ -2,6 +2,7 @@ import {
   Apple,
   Blocks,
   Bot,
+  Brush,
   Camera,
   Citrus,
   Clapperboard,
@@ -13,11 +14,13 @@ import {
   Palette,
   Pencil,
   Ribbon,
+  Rocket,
   Scissors,
   ScrollText,
   Smartphone,
   Snowflake,
   Sparkles,
+  Swords,
   Trophy,
 } from "lucide-react";
 
@@ -25,6 +28,7 @@ const ICONS = {
   apple: Apple,
   blocks: Blocks,
   bot: Bot,
+  brush: Brush,
   camera: Camera,
   citrus: Citrus,
   clapperboard: Clapperboard,
@@ -36,11 +40,13 @@ const ICONS = {
   palette: Palette,
   pencil: Pencil,
   ribbon: Ribbon,
+  rocket: Rocket,
   scissors: Scissors,
   "scroll-text": ScrollText,
   smartphone: Smartphone,
   snowflake: Snowflake,
   sparkles: Sparkles,
+  swords: Swords,
   trophy: Trophy,
 };
 

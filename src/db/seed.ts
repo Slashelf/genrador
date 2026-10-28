@@ -45,13 +45,21 @@ async function seedAdmin() {
 
 const REFRESH_IDS = new Set([
   "epoca-clasica",
-  "frutinovela-carcel",
-  "personaje-frutinovela",
   "el-gran-premio",
   "optimus-prime",
   "mini-chibi-mano",
+  "que-paso-ayer-fiesta",
+  "buzz-cut-street",
+  "figure-collector",
+  "ghibli-classic",
   "tokio-nevado",
+  "poster-naive",
+  "asado-lunar",
+  "pelea-te",
+  "pelea-te-larga",
 ]);
+
+const RETIRED_IDS = ["frutinovela-carcel", "personaje-frutinovela"];
 
 async function seedStyles() {
   for (const style of STYLE_SEEDS) {
@@ -59,7 +67,7 @@ async function seedStyles() {
     if (!current) {
       await db.insert(styles).values({
         ...style,
-        active: true,
+        active: "active" in style ? Boolean(style.active) : true,
       });
       continue;
     }
@@ -75,11 +83,15 @@ async function seedStyles() {
         referenceFile: "referenceFile" in style ? style.referenceFile : null,
         aspectRatio: "aspectRatio" in style ? style.aspectRatio : "1:1",
         kind: "kind" in style && style.kind ? style.kind : "image",
+        videoDuration: "videoDuration" in style && style.videoDuration ? style.videoDuration : 3,
         sortOrder: style.sortOrder,
       }).where(eq(styles.id, style.id));
       continue;
     }
     await db.update(styles).set({ sortOrder: style.sortOrder }).where(eq(styles.id, style.id));
+  }
+  for (const id of RETIRED_IDS) {
+    await db.update(styles).set({ active: false }).where(eq(styles.id, id));
   }
 }
 

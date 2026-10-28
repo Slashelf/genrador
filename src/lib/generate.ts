@@ -22,6 +22,7 @@ export async function generateForStyle(input: {
   model: string;
   resolution?: VideoResolution;
   aspectRatio?: VideoAspect;
+  duration?: number;
 }) {
   const style = input.style;
   if (!style.active) {
@@ -43,6 +44,7 @@ export async function generateForStyle(input: {
   const isVideo = style.kind === "video";
   const resolution = input.resolution || "480p";
   const aspectRatio = input.aspectRatio || "9:16";
+  const duration = input.duration || style.videoDuration || 3;
   const output = isVideo
     ? await requestReferenceVideo({
       person: input.person,
@@ -50,6 +52,7 @@ export async function generateForStyle(input: {
       model: input.model,
       resolution,
       aspectRatio,
+      duration,
     })
     : await requestEditedImage({
       person: input.person,

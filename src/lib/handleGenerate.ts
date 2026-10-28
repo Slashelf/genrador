@@ -1,6 +1,6 @@
 import { resolveChoice } from "./choices";
 import { friendlyImageError, resolveImageModel } from "./imageModels";
-import { friendlyVideoError, resolveVideoAspect, resolveVideoModel, resolveVideoResolution } from "./videoModels";
+import { friendlyVideoError, resolveVideoAspect, resolveVideoDuration, resolveVideoModel, resolveVideoResolution } from "./videoModels";
 import { generateForStyle } from "./generate";
 import { buildErrorResponse, buildSuccessResponse } from "./generationResponse";
 import { readReferenceImage } from "./images";
@@ -31,6 +31,7 @@ export async function handleGenerate(request: Request, slug: string, userId: str
     : resolveImageModel(form.get("model")?.toString() || "");
   const chosenResolution = isVideo ? resolveVideoResolution(form.get("resolution")?.toString() || "") : null;
   const chosenAspect = isVideo ? resolveVideoAspect(form.get("aspectRatio")?.toString() || style.aspectRatio) : null;
+  const chosenDuration = isVideo ? resolveVideoDuration(style.videoDuration) : null;
   const celebrity = form.get("celebrity");
   const celebrityName = form.get("celebrityName")?.toString() || "";
   const choice = resolveChoice(style.selectOptions, form.get("choice")?.toString() || "");
@@ -45,6 +46,9 @@ export async function handleGenerate(request: Request, slug: string, userId: str
   }
   if (chosenAspect && !chosenAspect.ok) {
     return json(buildErrorResponse(chosenAspect.error), 400);
+  }
+  if (chosenDuration && !chosenDuration.ok) {
+    return json(buildErrorResponse(chosenDuration.error), 400);
   }
 
   if (!(person instanceof File)) {
@@ -89,6 +93,7 @@ export async function handleGenerate(request: Request, slug: string, userId: str
       model: chosenModel.model.id,
       resolution: chosenResolution?.ok ? chosenResolution.resolution : undefined,
       aspectRatio: chosenAspect?.ok ? chosenAspect.aspect : undefined,
+      duration: chosenDuration?.ok ? chosenDuration.seconds : undefined,
     });
 
     if (!result.ok) {

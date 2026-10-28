@@ -31,14 +31,13 @@ describe("menú de época", () => {
 
   it("las seis escenas de la feria quedan delante", () => {
     const ordered = [...STYLE_SEEDS].sort((a, b) => a.sortOrder - b.sortOrder);
-    expect(ordered.slice(0, 6).map((style) => style.id)).toEqual([
+    expect(ordered.slice(0, 4).map((style) => style.id)).toEqual([
       "epoca-clasica",
-      "frutinovela-carcel",
-      "personaje-frutinovela",
       "el-gran-premio",
       "optimus-prime",
       "mini-chibi-mano",
     ]);
+    expect(ordered.some((style) => style.id.includes("frutinovela"))).toBe(false);
   });
 
   it("Optimus y el mini chibi usan el prompt pedido", () => {

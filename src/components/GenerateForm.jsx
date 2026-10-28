@@ -31,6 +31,7 @@ const GenerateForm = ({
   selectMenu = null,
   kind = 'image',
   aspectRatio = DEFAULT_VIDEO_ASPECT,
+  durationSeconds = 3,
 }) => {
   const isVideo = kind === 'video';
   const startingAspect = VIDEO_ASPECTS.includes(aspectRatio) ? aspectRatio : DEFAULT_VIDEO_ASPECT;
@@ -232,7 +233,7 @@ const GenerateForm = ({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {(isVideo ? VIDEO_MODELS : IMAGE_MODELS).map((item) => {
               const selected = formData.model === item.id;
-              const price = isVideo ? videoPriceLabel(item.id, formData.resolution) : item.price;
+              const price = isVideo ? videoPriceLabel(item.id, formData.resolution, durationSeconds) : item.price;
               return (
                 <label
                   key={item.id}
@@ -261,7 +262,7 @@ const GenerateForm = ({
 
         {isVideo ? (
           <div className="space-y-6">
-            <p className="text-center text-sm font-semibold text-primary-800">Dura 3 segundos</p>
+            <p className="text-center text-sm font-semibold text-primary-800">Dura {durationSeconds} segundos</p>
             <div className="space-y-3">
               <label className="block text-sm font-semibold text-primary-800">Resolución</label>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

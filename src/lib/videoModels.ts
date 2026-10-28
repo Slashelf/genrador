@@ -43,14 +43,23 @@ export function resolveVideoAspect(value: string | undefined) {
   return { ok: true as const, aspect };
 }
 
-export function videoPrice(modelId: string, resolution: string) {
-  const rates = RATES[modelId as keyof typeof RATES];
-  const rate = rates?.[resolution as VideoResolution] ?? rates?.["480p"] ?? 0;
-  return rate * VIDEO_DURATION_SECONDS;
+export function resolveVideoDuration(value: string | number | undefined) {
+  const raw = value === undefined || value === "" ? String(VIDEO_DURATION_SECONDS) : String(value);
+  const seconds = Number(raw);
+  if (seconds !== 3 && seconds !== 6) {
+    return { ok: false as const, error: "La duración del video no es válida" };
+  }
+  return { ok: true as const, seconds };
 }
 
-export function videoPriceLabel(modelId: string, resolution: string) {
-  return `$${videoPrice(modelId, resolution).toFixed(2)} por video`;
+export function videoPrice(modelId: string, resolution: string, seconds = VIDEO_DURATION_SECONDS) {
+  const rates = RATES[modelId as keyof typeof RATES];
+  const rate = rates?.[resolution as VideoResolution] ?? rates?.["480p"] ?? 0;
+  return rate * seconds;
+}
+
+export function videoPriceLabel(modelId: string, resolution: string, seconds = VIDEO_DURATION_SECONDS) {
+  return `$${videoPrice(modelId, resolution, seconds).toFixed(2)} por video`;
 }
 
 export function videoModelLabel(id: string) {

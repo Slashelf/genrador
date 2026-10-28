@@ -54,16 +54,6 @@ Repaint that person as a museum oil portrait from this era:
 The picture is an old oil painting on canvas, with visible brushwork, and a golden frame around it. Clothing, background and frame must match the era. No modern clothes, no text, no logos.
 {{extraDetails}}`;
 
-const FRUTINOVELA_PROMPT = `Use the uploaded photo. Keep that person's face recognizable, including their expression, even after the costume change.
-
-Turn them into a glossy fruit character from a TikTok frutinovela. They stand in front of jail bars and threaten Ricardo, a different fruit character locked behind the bars. Ricardo is not the uploaded person. Dramatic telenovela lighting, one hard spotlight, deep shadows, exaggerated shocked faces, soap-opera close-up. Vertical 9:16 frame. No text, no logos.
-{{extraDetails}}`;
-
-const FRUTA_PROMPT = `Use the uploaded photo. Keep that person's face and expression recognizable.
-
-Turn them into a fruit character from a TikTok frutinovela, in the middle of a telenovela drama: glossy fruit costume, exaggerated emotion, hard spotlight, deep shadows, rich colors. No text, no logos.
-{{extraDetails}}`;
-
 const GRAN_PREMIO_PROMPT = `Use the uploaded photo as the winner. Keep that face recognizable and very happy.
 
 A funny awards photo. The person stands on the highest podium step, first place, holding a large gold trophy. On the second step an elderly person cries inconsolably. On the third step a small child cries inconsolably. Both losers are clearly not the uploaded person. A crowd cheers, confetti fills the air, and the scene is bright and comedic. No text, no logos.
@@ -74,6 +64,14 @@ const OPTIMUS_PROMPT = "A realistic close-up of the giant Optimus Prime head, ta
 const MINI_CHIBI_PROMPT = "A mini chibi version of the character in the uploaded image, with a big head and small body, sitting on an open left palm for realistic scale. A right hand gently pressing its cheek with an index finger. The character looks annoyed and pouty — puffed cheeks, slightly frowning, squinting eyes. Ultra-detailed chibi style, soft pastel colors, smooth texture, clean lighting, shallow depth of field, strong focus on facial expression and hand interaction, vertical composition 4:5 ratio.";
 
 const TOKIO_PROMPT = "The person from the reference photo stands on a snowy Tokyo street at dusk, facing the camera, keeping their exact face, hairstyle, and clothing. Snowflakes and pink cherry blossom petals fall gently around them. Blurred crowds walk behind them. The camera stays in front of the person, handheld with a subtle natural shake, no rotation, no orbit, no camera turns. The person breathes calmly, blinks, and gives a soft smile. Soft warm lighting from shop signs, shallow depth of field, cinematic and peaceful winter mood. Realistic, natural movement.";
+
+const POSTER_NAIVE_PROMPT = "Transform the person in the uploaded photo into an original modern naïve art illustration, styled as a premium design poster. Keep their recognizable likeness: face shape, hairstyle, hair color, skin tone, glasses or accessories, and clothing colors. Reinterpret them as a charming, whimsical character with playful proportions (slightly larger head, simplified body) and minimal but expressive facial features. Place them in a simple everyday setting inspired by the photo's background, reimagined in an imaginative composition. Minimalist hand-drawn aesthetic with imperfect pencil outlines, visible sketch marks, decorative doodles, and soft yet contrasting flat colors. Subtle paper texture and an authentic handmade feel, like a piece by a contemporary independent artist. Organic shapes, intentionally imperfect details, warm and distinctive. No shadows, no gradients, no photorealism, no 3D effects. Clean composition, balanced negative space, sophisticated color palette, gallery-worthy editorial poster look, high-quality print aesthetic.";
+
+const ASADO_LUNAR_PROMPT = "The person from the uploaded photo as the main astronaut, hosting a casual backyard barbecue on the moon, keeping their exact face, hairstyle, skin tone, and likeness. They wear a realistic white NASA-style space suit with the helmet's clear visor raised so their face is fully visible, looking natural and confident, smiling while flipping burgers on a classic grill with a spatula. Around them, two other astronauts in full suits with reflective visors relax on folding chairs, with ketchup and mustard bottles on a small camping table. Earth glows large in the black starry sky behind them. Grey lunar dust and craters, cool lunar light mixed with warm orange glow from the grill on their face. Playful suburban mood, surreal domestic humor, crisp textures, photorealistic, cinematic wide shot, sharp focus on the main astronaut.";
+
+const PELEA_TE_PROMPT = "Widescreen 16:9, cinematic live-action, one continuous 3-second shot, no cuts. The protagonist is the woman from the reference image, keeping her exact face, hair, pink highlights, long side braid over her right shoulder, plum shirt and cream cargo pants. Setting: abandoned terraced tea plantation on a misty mountain slope right after rain, mossy stone walls, wet stone stairs, low golden sunlight cutting through light haze. She catches a bamboo staff thrown by a masked attacker in a charcoal hooded raincoat and slate-grey face wraps, plants it in the muddy ground, pole-vaults upward and strikes two masked attackers with a powerful two-footed kick; they fly backward in opposite directions. Water and mud splash, tea leaves scatter. Camera orbits slightly around her at a low angle, subtle shake on impact, natural motion blur. Only natural sounds: footsteps, fabric, splashes, impacts. No dialogue, no slow motion, no neon, no CGI or cartoon look, no deformed limbs, no extra people, no text or watermark.";
+
+const PELEA_TE_LARGA_PROMPT = "Widescreen 16:9, cinematic live-action, one continuous 6-second shot, no cuts, no transitions. The protagonist is the woman from the reference image, keeping her exact face, hair, soft pink highlights, long side braid over her right shoulder, plum shirt and cream cargo pants at all times. Setting: abandoned terraced tea plantation on a misty mountain slope right after rain, mossy stone walls, wet stone stairs, a shallow irrigation channel, a collapsed wooden footbridge with a gap, low golden sunlight through light haze. Palette: moss green, wet slate grey, warm amber, deep plum. Action in order: she knee-slides through the shallow irrigation channel, throwing up a wide curtain of water, springs to her feet, leaps across the gap of the collapsed bridge and slams her shoulder into a masked attacker in a charcoal hooded raincoat and slate-grey face wraps, sending him tumbling to the lower terrace. Without stopping, she catches a bamboo staff thrown by another attacker, plants it in the mud, pole-vaults upward and hits two masked attackers with a powerful two-footed kick; they fly backward in opposite directions. She lands in a firm fighting stance, braid still swinging. Final frame sharp and still. Camera: low angle, smoothly tracking alongside her center of gravity the whole time, never cutting away, subtle shake on each impact, natural motion blur. Water splashes, mud droplets and tea leaves react to every hit. Only natural sounds: footsteps, fabric, splashes, impacts. No dialogue, no slow motion, no neon, no CGI or cartoon look, no deformed limbs, no extra people, no text or watermark.";
 
 export const STYLE_SEEDS = [
   {
@@ -89,34 +87,6 @@ export const STYLE_SEEDS = [
     aspectRatio: "1:1",
     requiresCelebrity: false,
     sortOrder: 1,
-  },
-  {
-    id: "frutinovela-carcel",
-    slug: "frutinovela-carcel",
-    name: "Frutinovela: la amenaza en la cárcel",
-    description: "Tu cara en una fruta, amenazando a Ricardo detrás de las rejas.",
-    icon: "citrus",
-    promptTemplate: FRUTINOVELA_PROMPT,
-    detailsHint: "La fruta o el gesto de la amenaza",
-    selectOptions: null,
-    referenceFile: null,
-    aspectRatio: "9:16",
-    requiresCelebrity: false,
-    sortOrder: 2,
-  },
-  {
-    id: "personaje-frutinovela",
-    slug: "personaje-frutinovela",
-    name: "Personaje de frutinovela",
-    description: "Tu cara y tu expresión, convertidas en una fruta de telenovela.",
-    icon: "apple",
-    promptTemplate: FRUTA_PROMPT,
-    detailsHint: "La fruta o la emoción de la escena",
-    selectOptions: null,
-    referenceFile: null,
-    aspectRatio: "9:16",
-    requiresCelebrity: false,
-    sortOrder: 3,
   },
   {
     id: "el-gran-premio",
@@ -166,10 +136,7 @@ export const STYLE_SEEDS = [
     name: "¿Qué pasó ayer?",
     description: "Foto espontánea de fiesta junto a una celebridad.",
     icon: "clapperboard",
-    promptTemplate: prompts["imageGenerator.js"].replace(
-      "${celebrityName || 'una celebridad'}",
-      "{{celebrityName}}",
-    ) + " {{extraDetails}}",
+    promptTemplate: `${prompts["imageGenerator.js"].trim()} {{extraDetails}}`,
     detailsHint: "Detalles de la fiesta, ropa o lugar",
     requiresCelebrity: true,
     sortOrder: 7,
@@ -319,7 +286,72 @@ export const STYLE_SEEDS = [
     aspectRatio: "9:16",
     requiresCelebrity: false,
     kind: "video",
+    videoDuration: 3,
     sortOrder: 20,
+  },
+  {
+    id: "poster-naive",
+    slug: "poster-naive",
+    name: "Póster naïve",
+    description: "Ilustración de póster, con tu cara y un dibujo hecho a mano.",
+    icon: "brush",
+    promptTemplate: POSTER_NAIVE_PROMPT,
+    detailsHint: "Este estilo usa una escena fija",
+    selectOptions: null,
+    referenceFile: null,
+    aspectRatio: "9:16",
+    requiresCelebrity: false,
+    kind: "video",
+    videoDuration: 3,
+    sortOrder: 21,
+  },
+  {
+    id: "asado-lunar",
+    slug: "asado-lunar",
+    name: "Asado en la luna",
+    description: "Tu cara en un astronauta, haciendo un asado en la luna.",
+    icon: "rocket",
+    promptTemplate: ASADO_LUNAR_PROMPT,
+    detailsHint: "Este estilo usa una escena fija",
+    selectOptions: null,
+    referenceFile: null,
+    aspectRatio: "16:9",
+    requiresCelebrity: false,
+    kind: "video",
+    videoDuration: 3,
+    sortOrder: 22,
+  },
+  {
+    id: "pelea-te",
+    slug: "pelea-te",
+    name: "Pelea en el té",
+    description: "Una toma de 3 segundos en una plantación de té después de la lluvia.",
+    icon: "swords",
+    promptTemplate: PELEA_TE_PROMPT,
+    detailsHint: "Este estilo usa una escena fija",
+    selectOptions: null,
+    referenceFile: null,
+    aspectRatio: "16:9",
+    requiresCelebrity: false,
+    kind: "video",
+    videoDuration: 3,
+    sortOrder: 23,
+  },
+  {
+    id: "pelea-te-larga",
+    slug: "pelea-te-larga",
+    name: "Pelea en el té, larga",
+    description: "La misma plantación, en una toma continua de 6 segundos.",
+    icon: "swords",
+    promptTemplate: PELEA_TE_LARGA_PROMPT,
+    detailsHint: "Este estilo usa una escena fija",
+    selectOptions: null,
+    referenceFile: null,
+    aspectRatio: "16:9",
+    requiresCelebrity: false,
+    kind: "video",
+    videoDuration: 6,
+    sortOrder: 24,
   },
 ];
 
@@ -344,4 +376,7 @@ export const ICON_OPTIONS = [
   "image",
   "mountain",
   "snowflake",
+  "brush",
+  "rocket",
+  "swords",
 ];
