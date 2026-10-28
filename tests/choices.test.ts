@@ -31,7 +31,8 @@ describe("menú de época", () => {
 
   it("las seis escenas de la feria quedan delante", () => {
     const ordered = [...STYLE_SEEDS].sort((a, b) => a.sortOrder - b.sortOrder);
-    expect(ordered.slice(0, 4).map((style) => style.id)).toEqual([
+    expect(ordered.slice(0, 5).map((style) => style.id)).toEqual([
+      "foto-libre",
       "epoca-clasica",
       "el-gran-premio",
       "optimus-prime",

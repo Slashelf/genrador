@@ -14,6 +14,7 @@ if (!style || !style.active) {
 }
 
 const isVideo = style.kind === "video";
+const freePrompt = style.promptTemplate.trim() === "{{extraDetails}}";
 const menu = parseStyleChoices(style.selectOptions);
 const selectMenu = menu
   ? { label: menu.label, options: menu.options.map((option) => ({ value: option.value, label: option.label })) }
@@ -38,7 +39,7 @@ const selectMenu = menu
       <div class="bg-white rounded-2xl shadow-elegant overflow-hidden">
         <div class="bg-gradient-to-r from-primary-600 to-primary-800 px-8 py-6">
           <h2 class="text-2xl font-bold text-white mb-2">{isVideo ? "Genera tu video" : "Genera tu imagen"}</h2>
-          <p class="text-primary-100">{isVideo ? `Sube tu foto. El video dura ${style.videoDuration || 3} segundos.` : "Sube las imágenes necesarias y personaliza los detalles"}</p>
+          <p class="text-primary-100">{freePrompt ? "Sube tu foto y escribe el prompt. No hay escena fija." : isVideo ? `Sube tu foto. El video dura ${style.videoDuration || 3} segundos.` : "Sube las imágenes necesarias y personaliza los detalles"}</p>
         </div>
         <GenerateForm
           client:load
@@ -52,6 +53,7 @@ const selectMenu = menu
           kind={style.kind}
           aspectRatio={style.aspectRatio}
           durationSeconds={style.videoDuration || 3}
+          promptRequired={freePrompt}
         />
       </div>
     </div>

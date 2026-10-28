@@ -73,7 +73,23 @@ const PELEA_TE_PROMPT = "Widescreen 16:9, cinematic live-action, one continuous 
 
 const PELEA_TE_LARGA_PROMPT = "Widescreen 16:9, cinematic live-action, one continuous 6-second shot, no cuts, no transitions. The protagonist is the person from the reference photo. Copy their face, gender, age, hairstyle, hair color, skin tone, glasses or accessories, and clothing colors onto the main character. Do not replace them with a woman, a man, or anyone else. Setting: abandoned terraced tea plantation on a misty mountain slope right after rain, mossy stone walls, wet stone stairs, a shallow irrigation channel, a collapsed wooden footbridge with a gap, low golden sunlight through light haze. Palette: moss green, wet slate grey, warm amber, damp wood. Action in order: the protagonist knee-slides through the shallow irrigation channel, throwing up a wide curtain of water, springs to their feet, leaps across the gap of the collapsed bridge and slams their shoulder into a masked attacker in a charcoal hooded raincoat and slate-grey face wraps, sending that attacker tumbling to the lower terrace. Without stopping, the protagonist catches a bamboo staff thrown by another attacker, plants it in the mud, pole-vaults upward and hits two masked attackers with a powerful two-footed kick; the attackers fly backward in opposite directions. The protagonist lands in a firm fighting stance. Final frame sharp and still. Camera: low angle, smoothly tracking alongside the protagonist's center of gravity the whole time, never cutting away, subtle shake on each impact, natural motion blur. Water splashes, mud droplets and tea leaves react to every hit. Only natural sounds: footsteps, fabric, splashes, impacts. No dialogue, no slow motion, no neon, no CGI or cartoon look, no deformed limbs, no extra people, no text or watermark.";
 
+const FREE_PROMPT = "{{extraDetails}}";
+
 export const STYLE_SEEDS = [
+  {
+    id: "foto-libre",
+    slug: "foto-libre",
+    name: "Foto con tu prompt",
+    description: "Sube tu foto y escribe lo que quieres ver. No hay escena fija.",
+    icon: "pencil",
+    promptTemplate: FREE_PROMPT,
+    detailsHint: "El texto que escribas es el prompt completo.",
+    selectOptions: null,
+    referenceFile: null,
+    aspectRatio: "3:4",
+    requiresCelebrity: false,
+    sortOrder: 0,
+  },
   {
     id: "epoca-clasica",
     slug: "epoca-clasica",
@@ -287,6 +303,22 @@ export const STYLE_SEEDS = [
     requiresCelebrity: false,
     kind: "video",
     videoDuration: 3,
+    sortOrder: 21,
+  },
+  {
+    id: "video-libre",
+    slug: "video-libre",
+    name: "Video con tu prompt",
+    description: "Sube tu foto y escribe la escena. El video dura 3 segundos.",
+    icon: "clapperboard",
+    promptTemplate: FREE_PROMPT,
+    detailsHint: "El texto que escribas es el prompt del video.",
+    selectOptions: null,
+    referenceFile: null,
+    aspectRatio: "9:16",
+    requiresCelebrity: false,
+    kind: "video",
+    videoDuration: 3,
     sortOrder: 20,
   },
   {
@@ -303,7 +335,7 @@ export const STYLE_SEEDS = [
     requiresCelebrity: false,
     kind: "video",
     videoDuration: 3,
-    sortOrder: 21,
+    sortOrder: 22,
   },
   {
     id: "asado-lunar",
@@ -319,7 +351,7 @@ export const STYLE_SEEDS = [
     requiresCelebrity: false,
     kind: "video",
     videoDuration: 3,
-    sortOrder: 22,
+    sortOrder: 23,
   },
   {
     id: "pelea-te",
@@ -335,7 +367,7 @@ export const STYLE_SEEDS = [
     requiresCelebrity: false,
     kind: "video",
     videoDuration: 3,
-    sortOrder: 23,
+    sortOrder: 24,
   },
   {
     id: "pelea-te-larga",
@@ -351,7 +383,7 @@ export const STYLE_SEEDS = [
     requiresCelebrity: false,
     kind: "video",
     videoDuration: 6,
-    sortOrder: 24,
+    sortOrder: 25,
   },
 ];
 

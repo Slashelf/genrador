@@ -57,6 +57,8 @@ const REFRESH_IDS = new Set([
   "asado-lunar",
   "pelea-te",
   "pelea-te-larga",
+  "foto-libre",
+  "video-libre",
 ]);
 
 const RETIRED_IDS = ["frutinovela-carcel", "personaje-frutinovela"];

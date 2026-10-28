@@ -32,6 +32,7 @@ const GenerateForm = ({
   kind = 'image',
   aspectRatio = DEFAULT_VIDEO_ASPECT,
   durationSeconds = 3,
+  promptRequired = false,
 }) => {
   const isVideo = kind === 'video';
   const startingAspect = VIDEO_ASPECTS.includes(aspectRatio) ? aspectRatio : DEFAULT_VIDEO_ASPECT;
@@ -67,7 +68,8 @@ const GenerateForm = ({
   }, []);
 
   const choiceReady = !selectMenu || selectMenu.options.some((option) => option.value === formData.choice);
-  const isFormValid = Boolean(formData.personImage) && (!requiresCelebrity || Boolean(formData.celebrityImage)) && choiceReady;
+  const promptReady = !promptRequired || formData.extraDetails.trim().length >= 3;
+  const isFormValid = Boolean(formData.personImage) && (!requiresCelebrity || Boolean(formData.celebrityImage)) && choiceReady && promptReady;
 
   const handleSubmit = async (e) => {
     e?.preventDefault?.();
@@ -79,6 +81,10 @@ const GenerateForm = ({
     }
     if (requiresCelebrity && !formData.celebrityImage) {
       setErrorMessage('Sube la foto de la celebridad.');
+      return;
+    }
+    if (promptRequired && formData.extraDetails.trim().length < 3) {
+      setErrorMessage('Escribe el prompt antes de generar.');
       return;
     }
 
@@ -211,15 +217,16 @@ const GenerateForm = ({
 
           <div className="space-y-4">
             <label htmlFor="extraDetails" className="block text-sm font-semibold text-primary-800 mb-2">
-              Detalles adicionales
+              {promptRequired ? 'Tu prompt' : 'Detalles adicionales'}
             </label>
             <textarea
               id="extraDetails"
               name="extraDetails"
               value={formData.extraDetails}
               onChange={handleInputChange}
-              rows="3"
-              placeholder={detailsHint}
+              rows={promptRequired ? 6 : 3}
+              required={promptRequired}
+              placeholder={promptRequired ? 'Describe la escena con tus palabras' : detailsHint}
               className="w-full px-4 py-3 border border-accent-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-colors resize-none"
             />
             <p className="text-xs text-accent-500">{detailsHint}</p>

@@ -4,6 +4,14 @@ function fillPlaceholder(prompt: string, token: string, value: string) {
   return cleared.replaceAll(`{{${token}}}`, "");
 }
 
+export function freePromptIssue(template: string, extraDetails: string) {
+  if (template.trim() !== "{{extraDetails}}") return null;
+  const text = extraDetails.trim();
+  if (text.length < 3) return "Escribe el prompt antes de generar.";
+  if (text.length > 2000) return "El prompt es demasiado largo.";
+  return null;
+}
+
 export function renderPrompt(
   template: string,
   values: { celebrityName?: string; extraDetails?: string; choice?: string },

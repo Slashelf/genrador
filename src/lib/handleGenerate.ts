@@ -1,4 +1,5 @@
 import { resolveChoice } from "./choices";
+import { freePromptIssue } from "./prompt";
 import { friendlyImageError, resolveImageModel } from "./imageModels";
 import { friendlyVideoError, resolveVideoAspect, resolveVideoDuration, resolveVideoModel, resolveVideoResolution } from "./videoModels";
 import { generateForStyle } from "./generate";
@@ -24,6 +25,10 @@ export async function handleGenerate(request: Request, slug: string, userId: str
   const form = await request.formData();
   const person = form.get("person");
   const extraDetails = form.get("extraDetails")?.toString() || "";
+  const promptIssue = freePromptIssue(style.promptTemplate, extraDetails);
+  if (promptIssue) {
+    return json(buildErrorResponse(promptIssue), 400);
+  }
   const isVideo = style.kind === "video";
   const quality = form.get("quality")?.toString() || "medium";
   const chosenModel = isVideo

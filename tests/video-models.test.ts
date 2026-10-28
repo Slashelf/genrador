@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { STYLE_SEEDS } from "../src/db/style-seeds";
+import { freePromptIssue, renderPrompt } from "../src/lib/prompt";
 import { buildSuccessResponse } from "../src/lib/generationResponse";
 import {
   DEFAULT_VIDEO_MODEL,
@@ -21,7 +22,7 @@ describe("videos de la feria", () => {
     const style = STYLE_SEEDS.find((item) => item.id === "tokio-nevado");
     expect(style?.kind).toBe("video");
     expect(style?.promptTemplate).toBe(TOKIO_PROMPT);
-    expect(STYLE_SEEDS.filter((item) => item.kind === "video")).toHaveLength(5);
+    expect(STYLE_SEEDS.filter((item) => item.kind === "video")).toHaveLength(6);
     expect(STYLE_SEEDS.some((item) => item.id.includes("frutinovela"))).toBe(false);
     expect(STYLE_SEEDS.filter((item) => item.kind !== "video").every((item) => item.kind === undefined)).toBe(true);
   });
@@ -82,6 +83,15 @@ describe("videos de la feria", () => {
     expect(byId["pelea-te-larga"]?.videoDuration).toBe(6);
     expect(byId["pelea-te-larga"]?.promptTemplate.includes("one continuous 6-second shot")).toBe(true);
     expect(byId["pelea-te-larga"]?.promptTemplate.includes("the person from the reference photo")).toBe(true);
+    expect(byId["video-libre"]?.kind).toBe("video");
+    expect(byId["video-libre"]?.videoDuration).toBe(3);
+    expect(byId["video-libre"]?.promptTemplate).toBe("{{extraDetails}}");
+    expect(byId["foto-libre"]?.promptTemplate).toBe("{{extraDetails}}");
+    expect(byId["foto-libre"]?.kind).toBeUndefined();
+    expect(renderPrompt("{{extraDetails}}", { extraDetails: "bajo la lluvia de noche" })).toBe("bajo la lluvia de noche");
+    expect(freePromptIssue("{{extraDetails}}", " ")).toBe("Escribe el prompt antes de generar.");
+    expect(freePromptIssue("{{extraDetails}}", "bajo la lluvia")).toBeNull();
+    expect(freePromptIssue("Una escena fija", "")).toBeNull();
     const videos = STYLE_SEEDS.filter((item) => item.kind === "video");
     for (const style of videos) {
       const text = style.promptTemplate.toLowerCase();
@@ -89,6 +99,7 @@ describe("videos de la feria", () => {
       expect(text.includes("pink highlights")).toBe(false);
       expect(text.includes("plum shirt")).toBe(false);
       expect(text.includes("cream cargo")).toBe(false);
+      if (style.promptTemplate.trim() === "{{extraDetails}}") continue;
       expect(text.includes("gender")).toBe(true);
     }
     const prefixed = withVideoLikeness("A snowy street.");
