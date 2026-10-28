@@ -1,5 +1,6 @@
 import { resolveChoice } from "./choices";
 import { friendlyImageError, resolveImageModel } from "./imageModels";
+import { friendlyVideoError, resolveVideoAspect, resolveVideoModel, resolveVideoResolution } from "./videoModels";
 import { generateForStyle } from "./generate";
 import { buildErrorResponse, buildSuccessResponse } from "./generationResponse";
 import { readReferenceImage } from "./images";
@@ -23,8 +24,13 @@ export async function handleGenerate(request: Request, slug: string, userId: str
   const form = await request.formData();
   const person = form.get("person");
   const extraDetails = form.get("extraDetails")?.toString() || "";
+  const isVideo = style.kind === "video";
   const quality = form.get("quality")?.toString() || "medium";
-  const chosenModel = resolveImageModel(form.get("model")?.toString() || "");
+  const chosenModel = isVideo
+    ? resolveVideoModel(form.get("model")?.toString() || "")
+    : resolveImageModel(form.get("model")?.toString() || "");
+  const chosenResolution = isVideo ? resolveVideoResolution(form.get("resolution")?.toString() || "") : null;
+  const chosenAspect = isVideo ? resolveVideoAspect(form.get("aspectRatio")?.toString() || style.aspectRatio) : null;
   const celebrity = form.get("celebrity");
   const celebrityName = form.get("celebrityName")?.toString() || "";
   const choice = resolveChoice(style.selectOptions, form.get("choice")?.toString() || "");
@@ -34,11 +40,17 @@ export async function handleGenerate(request: Request, slug: string, userId: str
   if (!chosenModel.ok) {
     return json(buildErrorResponse(chosenModel.error), 400);
   }
+  if (chosenResolution && !chosenResolution.ok) {
+    return json(buildErrorResponse(chosenResolution.error), 400);
+  }
+  if (chosenAspect && !chosenAspect.ok) {
+    return json(buildErrorResponse(chosenAspect.error), 400);
+  }
 
   if (!(person instanceof File)) {
     return json(buildErrorResponse("Falta la foto de la persona"), 400);
   }
-  if (quality !== "medium" && quality !== "high") {
+  if (!isVideo && quality !== "medium" && quality !== "high") {
     return json(buildErrorResponse('La calidad debe ser "medium" o "high"'), 400);
   }
   if (person.size > MAX_BYTES) {
@@ -73,8 +85,10 @@ export async function handleGenerate(request: Request, slug: string, userId: str
       choice: choice.prompt,
       choiceLabel: choice.label,
       reference,
-      quality,
+      quality: quality === "high" ? "high" : "medium",
       model: chosenModel.model.id,
+      resolution: chosenResolution?.ok ? chosenResolution.resolution : undefined,
+      aspectRatio: chosenAspect?.ok ? chosenAspect.aspect : undefined,
     });
 
     if (!result.ok) {
@@ -99,6 +113,7 @@ export async function handleGenerate(request: Request, slug: string, userId: str
     }), 200);
   } catch (error) {
     const message = error instanceof Error ? error.message : "";
-    return json(buildErrorResponse(friendlyImageError(message)), 500);
+    const friendly = isVideo ? friendlyVideoError(message) : friendlyImageError(message);
+    return json(buildErrorResponse(friendly), 500);
   }
 }

@@ -46,9 +46,10 @@ export function writeGeneratedSet(input: {
   thumb: Buffer;
   person: Buffer;
   celebrity?: Buffer;
+  outputExtension?: "png" | "mp4";
 }) {
   fs.mkdirSync(DATA_DIR, { recursive: true });
-  const outputFile = `${input.id}.png`;
+  const outputFile = `${input.id}.${input.outputExtension || "png"}`;
   const thumbFile = `${input.id}.webp`;
   const personFile = `${input.id}_person_original.png`;
   fs.writeFileSync(path.join(DATA_DIR, outputFile), input.output);

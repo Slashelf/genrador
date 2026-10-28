@@ -12,7 +12,19 @@ const types: Record<string, string> = {
   ".jpeg": "image/jpeg",
   ".webp": "image/webp",
   ".gif": "image/gif",
+  ".mp4": "video/mp4",
 };
+
+function fileStream(filePath: string, start?: number, end?: number) {
+  return new ReadableStream({
+    start(controller) {
+      const fileStream = createReadStream(filePath, start === undefined ? undefined : { start, end });
+      fileStream.on("data", (chunk) => controller.enqueue(new Uint8Array(chunk)));
+      fileStream.on("end", () => controller.close());
+      fileStream.on("error", (error) => controller.error(error));
+    },
+  });
+}
 
 export const GET: APIRoute = async ({ params, request, url }) => {
   const relative = params.path;
@@ -33,8 +45,45 @@ export const GET: APIRoute = async ({ params, request, url }) => {
   const stats = fs.statSync(filePath);
   const contentType = types[path.extname(filePath).toLowerCase()] || "application/octet-stream";
   const etag = `"${stats.mtime.getTime()}-${stats.size}"`;
-  if (request.headers.get("if-none-match") === etag) {
+  const isVideo = contentType === "video/mp4";
+  const range = request.headers.get("range");
+  if (!range && request.headers.get("if-none-match") === etag) {
     return new Response(null, { status: 304, headers: { ETag: etag } });
+  }
+
+  if (isVideo && range) {
+    const match = /^bytes=(\d*)-(\d*)$/.exec(range.trim());
+    const invalid = !match || (match[1] === "" && match[2] === "");
+    let start = 0;
+    let end = stats.size - 1;
+    if (!invalid && match) {
+      if (match[1] === "") {
+        const suffix = Number(match[2]);
+        start = Math.max(stats.size - suffix, 0);
+      } else {
+        start = Number(match[1]);
+        end = match[2] === "" ? stats.size - 1 : Number(match[2]);
+      }
+    }
+    if (invalid || Number.isNaN(start) || Number.isNaN(end) || start < 0 || start >= stats.size || end < start) {
+      return new Response(null, {
+        status: 416,
+        headers: { "Content-Range": `bytes */${stats.size}` },
+      });
+    }
+    end = Math.min(end, stats.size - 1);
+    return new Response(fileStream(filePath, start, end), {
+      status: 206,
+      headers: {
+        "Content-Type": contentType,
+        "Content-Length": String(end - start + 1),
+        "Content-Range": `bytes ${start}-${end}/${stats.size}`,
+        "Accept-Ranges": "bytes",
+        "Cache-Control": "public, max-age=31536000, immutable",
+        "X-Content-Type-Options": "nosniff",
+        ETag: etag,
+      },
+    });
   }
 
   const headers = new Headers({
@@ -44,15 +93,7 @@ export const GET: APIRoute = async ({ params, request, url }) => {
     "X-Content-Type-Options": "nosniff",
     ETag: etag,
   });
+  if (isVideo) headers.set("Accept-Ranges", "bytes");
 
-  const stream = new ReadableStream({
-    start(controller) {
-      const fileStream = createReadStream(filePath);
-      fileStream.on("data", (chunk) => controller.enqueue(new Uint8Array(chunk)));
-      fileStream.on("end", () => controller.close());
-      fileStream.on("error", (error) => controller.error(error));
-    },
-  });
-
-  return new Response(stream, { status: 200, headers });
+  return new Response(fileStream(filePath), { status: 200, headers });
 };

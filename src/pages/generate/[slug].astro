@@ -13,6 +13,7 @@ if (!style || !style.active) {
   return new Response("Estilo no disponible", { status: 404 });
 }
 
+const isVideo = style.kind === "video";
 const menu = parseStyleChoices(style.selectOptions);
 const selectMenu = menu
   ? { label: menu.label, options: menu.options.map((option) => ({ value: option.value, label: option.label })) }
@@ -36,8 +37,8 @@ const selectMenu = menu
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="bg-white rounded-2xl shadow-elegant overflow-hidden">
         <div class="bg-gradient-to-r from-primary-600 to-primary-800 px-8 py-6">
-          <h2 class="text-2xl font-bold text-white mb-2">Genera tu imagen</h2>
-          <p class="text-primary-100">Sube las imágenes necesarias y personaliza los detalles</p>
+          <h2 class="text-2xl font-bold text-white mb-2">{isVideo ? "Genera tu video" : "Genera tu imagen"}</h2>
+          <p class="text-primary-100">{isVideo ? "Sube tu foto. El video dura 3 segundos." : "Sube las imágenes necesarias y personaliza los detalles"}</p>
         </div>
         <GenerateForm
           client:load
@@ -48,6 +49,8 @@ const selectMenu = menu
           detailsHint={style.detailsHint}
           requiresCelebrity={style.requiresCelebrity}
           selectMenu={selectMenu}
+          kind={style.kind}
+          aspectRatio={style.aspectRatio}
         />
       </div>
     </div>

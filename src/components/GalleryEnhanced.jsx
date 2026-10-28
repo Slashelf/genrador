@@ -2,8 +2,19 @@ import React, { useState } from 'react';
 import OriginalImagesGrid from './OriginalImagesGrid.jsx';
 import DownloadButtons from './DownloadButtons.jsx';
 
+function isVideoItem(image) {
+  return image?.kind === 'video' || String(image?.fileName || '').endsWith('.mp4');
+}
+
+function qualityLabel(image) {
+  const quality = image.generation?.quality;
+  if (isVideoItem(image)) return quality || '480p';
+  return quality === 'high' ? 'Alta' : 'Media';
+}
+
 const ImageModal = ({ image, isOpen, onClose }) => {
   if (!isOpen || !image) return null;
+  const video = isVideoItem(image);
 
   const formatFileSize = (bytes) => {
     const sizes = ['Bytes', 'KB', 'MB', 'GB'];
@@ -53,11 +64,22 @@ const ImageModal = ({ image, isOpen, onClose }) => {
         <div className="grid grid-cols-1 lg:grid-cols-2 min-h-[80vh]">
           {/* Imagen principal */}
           <div className="relative bg-black flex items-center justify-center p-8 pt-24">
-            <img 
-              src={image.imageUrl} 
-              alt={`Imagen generada - ${image.styleId}`}
-              className="max-w-full max-h-full rounded-lg shadow-2xl"
-            />
+            {video ? (
+              <video
+                src={image.url || image.downloadUrl}
+                poster={image.imageUrl}
+                controls
+                autoPlay
+                playsInline
+                className="max-w-full max-h-full rounded-lg shadow-2xl"
+              />
+            ) : (
+              <img
+                src={image.imageUrl}
+                alt={`Imagen generada - ${image.styleId}`}
+                className="max-w-full max-h-full rounded-lg shadow-2xl"
+              />
+            )}
           </div>
 
           {/* Panel de información */}
@@ -85,9 +107,9 @@ const ImageModal = ({ image, isOpen, onClose }) => {
                   </div>
                 )}
                 <div className="bg-white p-3 rounded-lg">
-                  <strong className="text-gray-700">Calidad:</strong>
+                  <strong className="text-gray-700">{video ? 'Resolución:' : 'Calidad:'}</strong>
                   <p className="text-gray-600 mt-1">
-                    {image.generation?.quality === 'high' ? 'Alta' : 'Media'}
+                    {qualityLabel(image)}
                   </p>
                 </div>
                 <div className="bg-white p-3 rounded-lg">
@@ -131,7 +153,7 @@ const ImageModal = ({ image, isOpen, onClose }) => {
                 download={image.fileName}
                 className="w-full bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium text-center block"
               >
-                Descargar Imagen Generada
+                {video ? 'Descargar video' : 'Descargar Imagen Generada'}
               </a>
               
               <DownloadButtons image={image} />
@@ -226,6 +248,11 @@ const GalleryGrid = ({ images, onImageClick }) => {
                   <span className="bg-blue-600 text-white text-xs px-2 py-1 rounded-full font-medium">
                     {image.styleName || image.style?.name || image.styleId}
                   </span>
+                  {isVideoItem(image) && (
+                    <span className="bg-primary-800 text-white text-xs px-2 py-1 rounded-full font-medium block">
+                      Video
+                    </span>
+                  )}
                   {image.hasMetadata && (
                     <span className="bg-green-500 text-white text-xs px-2 py-1 rounded-full font-medium block">
                       Completa

@@ -1,8 +1,10 @@
 import { randomBytes } from "node:crypto";
 import { requestEditedImage } from "./openaiImage";
+import { requestReferenceVideo } from "./xaiVideo";
 import { createThumbnail, writeGeneratedSet } from "./images";
 import { renderPrompt } from "./prompt";
 import { insertGeneration, type StyleRecord } from "../server/records";
+import { videoFrameSize, type VideoAspect, type VideoResolution } from "./videoModels";
 
 export async function generateForStyle(input: {
   style: StyleRecord;
@@ -18,6 +20,8 @@ export async function generateForStyle(input: {
   reference?: Buffer;
   quality: "medium" | "high";
   model: string;
+  resolution?: VideoResolution;
+  aspectRatio?: VideoAspect;
 }) {
   const style = input.style;
   if (!style.active) {
@@ -36,15 +40,27 @@ export async function generateForStyle(input: {
   });
 
   const started = Date.now();
-  const output = await requestEditedImage({
-    person: input.person,
-    celebrity: input.celebrity ?? input.reference,
-    prompt,
-    quality: input.quality,
-    model: input.model,
-    aspectRatio: style.aspectRatio || "1:1",
-  });
-  const thumb = await createThumbnail(output);
+  const isVideo = style.kind === "video";
+  const resolution = input.resolution || "480p";
+  const aspectRatio = input.aspectRatio || "9:16";
+  const output = isVideo
+    ? await requestReferenceVideo({
+      person: input.person,
+      prompt,
+      model: input.model,
+      resolution,
+      aspectRatio,
+    })
+    : await requestEditedImage({
+      person: input.person,
+      celebrity: input.celebrity ?? input.reference,
+      prompt,
+      quality: input.quality,
+      model: input.model,
+      aspectRatio: style.aspectRatio || "1:1",
+    });
+  const thumb = await createThumbnail(isVideo ? input.person : output);
+  const frame = isVideo ? videoFrameSize(resolution, aspectRatio) : null;
   const stamp = `${style.id}_${Date.now()}_${randomBytes(3).toString("hex")}`;
   const files = writeGeneratedSet({
     id: stamp,
@@ -52,6 +68,7 @@ export async function generateForStyle(input: {
     thumb: thumb.data,
     person: input.person,
     celebrity: input.celebrity,
+    outputExtension: isVideo ? "mp4" : "png",
   });
 
   const generationTime = ((Date.now() - started) / 1000).toFixed(2);
@@ -62,14 +79,14 @@ export async function generateForStyle(input: {
     promptUsed: prompt,
     extraDetails: storedDetails,
     celebrityName: input.celebrityName?.trim() || null,
-    quality: input.quality,
+    quality: isVideo ? resolution : input.quality,
     model: input.model,
     outputFile: files.outputFile,
     thumbFile: files.thumbFile,
     personFile: files.personFile,
     celebrityFile: files.celebrityFile,
-    width: thumb.width,
-    height: thumb.height,
+    width: frame?.width || thumb.width,
+    height: frame?.height || thumb.height,
     bytes: output.length,
     createdAt: new Date(),
   });

@@ -15,6 +15,7 @@ const ResultModal = ({ result, onClose }) => {
   const styleName = style.name || 'Imagen';
   const description = style.description || '';
   const imageEntries = Object.entries(result.images || {}).filter(([, fileName]) => fileName);
+  const isVideo = result.media === 'video' || String(result.fileName || '').endsWith('.mp4');
 
   return (
     <div
@@ -42,13 +43,24 @@ const ResultModal = ({ result, onClose }) => {
 
         {(result.thumbUrl || result.imageUrl) && (
           <div className="mb-6">
-            <img
-              src={result.thumbUrl || result.imageUrl}
-              alt="Imagen generada"
-              width="640"
-              height="640"
-              className="w-full rounded-xl shadow-lg border-2 border-gray-200"
-            />
+            {isVideo ? (
+              <video
+                src={result.imageUrl}
+                poster={result.thumbUrl}
+                controls
+                autoPlay
+                playsInline
+                className="w-full rounded-xl shadow-lg border-2 border-gray-200"
+              />
+            ) : (
+              <img
+                src={result.thumbUrl || result.imageUrl}
+                alt="Imagen generada"
+                width="640"
+                height="640"
+                className="w-full rounded-xl shadow-lg border-2 border-gray-200"
+              />
+            )}
           </div>
         )}
 
@@ -106,7 +118,7 @@ const ResultModal = ({ result, onClose }) => {
               download={result.fileName || 'imagen.png'}
               className="flex-1 bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 transition-colors font-medium text-center"
             >
-              Descargar imagen
+              {isVideo ? 'Descargar video' : 'Descargar imagen'}
             </a>
           )}
 

@@ -73,6 +73,8 @@ const OPTIMUS_PROMPT = "A realistic close-up of the giant Optimus Prime head, ta
 
 const MINI_CHIBI_PROMPT = "A mini chibi version of the character in the uploaded image, with a big head and small body, sitting on an open left palm for realistic scale. A right hand gently pressing its cheek with an index finger. The character looks annoyed and pouty — puffed cheeks, slightly frowning, squinting eyes. Ultra-detailed chibi style, soft pastel colors, smooth texture, clean lighting, shallow depth of field, strong focus on facial expression and hand interaction, vertical composition 4:5 ratio.";
 
+const TOKIO_PROMPT = "The person from the reference photo stands on a snowy Tokyo street at dusk, facing the camera, keeping their exact face, hairstyle, and clothing. Snowflakes and pink cherry blossom petals fall gently around them. Blurred crowds walk behind them. The camera stays in front of the person, handheld with a subtle natural shake, no rotation, no orbit, no camera turns. The person breathes calmly, blinks, and gives a soft smile. Soft warm lighting from shop signs, shallow depth of field, cinematic and peaceful winter mood. Realistic, natural movement.";
+
 export const STYLE_SEEDS = [
   {
     id: "epoca-clasica",
@@ -304,6 +306,21 @@ export const STYLE_SEEDS = [
     requiresCelebrity: false,
     sortOrder: 19,
   },
+  {
+    id: "tokio-nevado",
+    slug: "tokio-nevado",
+    name: "Tokio nevado",
+    description: "Tu cara en una calle nevada de Tokio, al atardecer.",
+    icon: "snowflake",
+    promptTemplate: TOKIO_PROMPT,
+    detailsHint: "Este estilo usa una escena fija",
+    selectOptions: null,
+    referenceFile: null,
+    aspectRatio: "9:16",
+    requiresCelebrity: false,
+    kind: "video",
+    sortOrder: 20,
+  },
 ];
 
 export const ICON_OPTIONS = [
@@ -326,4 +343,5 @@ export const ICON_OPTIONS = [
   "palette",
   "image",
   "mountain",
+  "snowflake",
 ];

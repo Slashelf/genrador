@@ -16,6 +16,7 @@ import {
   Scissors,
   ScrollText,
   Smartphone,
+  Snowflake,
   Sparkles,
   Trophy,
 } from "lucide-react";
@@ -38,6 +39,7 @@ const ICONS = {
   scissors: Scissors,
   "scroll-text": ScrollText,
   smartphone: Smartphone,
+  snowflake: Snowflake,
   sparkles: Sparkles,
   trophy: Trophy,
 };

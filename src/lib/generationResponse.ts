@@ -44,7 +44,8 @@ export function buildSuccessResponse(input: SuccessInput) {
 
   return {
     success: true as const,
-    message: "Imagen generada",
+    message: input.outputFile.endsWith(".mp4") ? "Video generado" : "Imagen generada",
+    media: input.outputFile.endsWith(".mp4") ? "video" as const : "image" as const,
     imageUrl: `/api/images/${input.outputFile}`,
     thumbUrl: `/api/images/${input.thumbFile}`,
     fileName: input.outputFile,

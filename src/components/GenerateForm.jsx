@@ -5,6 +5,21 @@ import ImageUploader from './ImageUploader.jsx';
 import ResultModal from './ResultModal.jsx';
 import GenerationLoader from './GenerationLoader.jsx';
 import { DEFAULT_IMAGE_MODEL, IMAGE_MODELS } from '../lib/imageModels';
+import {
+  DEFAULT_VIDEO_ASPECT,
+  DEFAULT_VIDEO_MODEL,
+  DEFAULT_VIDEO_RESOLUTION,
+  VIDEO_ASPECTS,
+  VIDEO_MODELS,
+  VIDEO_RESOLUTIONS,
+  videoPriceLabel,
+} from '../lib/videoModels';
+
+const ASPECT_LABELS = {
+  '9:16': 'Vertical',
+  '16:9': 'Horizontal',
+  '1:1': 'Cuadrado',
+};
 
 const GenerateForm = ({
   slug,
@@ -14,7 +29,11 @@ const GenerateForm = ({
   detailsHint = 'Describe la escena o los detalles que quieres',
   requiresCelebrity = false,
   selectMenu = null,
+  kind = 'image',
+  aspectRatio = DEFAULT_VIDEO_ASPECT,
 }) => {
+  const isVideo = kind === 'video';
+  const startingAspect = VIDEO_ASPECTS.includes(aspectRatio) ? aspectRatio : DEFAULT_VIDEO_ASPECT;
   const [formData, setFormData] = useState({
     personImage: null,
     celebrityImage: null,
@@ -22,7 +41,9 @@ const GenerateForm = ({
     extraDetails: '',
     choice: selectMenu?.options?.[0]?.value || '',
     quality: 'medium',
-    model: DEFAULT_IMAGE_MODEL,
+    model: isVideo ? DEFAULT_VIDEO_MODEL : DEFAULT_IMAGE_MODEL,
+    resolution: DEFAULT_VIDEO_RESOLUTION,
+    aspectRatio: startingAspect,
   });
 
   const [result, setResult] = useState(null);
@@ -65,8 +86,13 @@ const GenerateForm = ({
     const submitData = new FormData();
     submitData.append('person', formData.personImage);
     submitData.append('extraDetails', formData.extraDetails);
-    submitData.append('quality', formData.quality);
     submitData.append('model', formData.model);
+    if (isVideo) {
+      submitData.append('resolution', formData.resolution);
+      submitData.append('aspectRatio', formData.aspectRatio);
+    } else {
+      submitData.append('quality', formData.quality);
+    }
     if (selectMenu) submitData.append('choice', formData.choice);
     if (requiresCelebrity) {
       submitData.append('celebrity', formData.celebrityImage);
@@ -82,10 +108,14 @@ const GenerateForm = ({
       if (payload.success) {
         setResult(payload);
       } else {
-        setErrorMessage(payload.error || 'No se pudo crear la imagen. Puedes intentarlo otra vez.');
+        setErrorMessage(payload.error || (isVideo
+          ? 'No se pudo crear el video. Puedes intentarlo otra vez.'
+          : 'No se pudo crear la imagen. Puedes intentarlo otra vez.'));
       }
     } catch {
-      setErrorMessage('No se pudo crear la imagen. Puedes intentarlo otra vez.');
+      setErrorMessage(isVideo
+        ? 'No se pudo crear el video. Puedes intentarlo otra vez.'
+        : 'No se pudo crear la imagen. Puedes intentarlo otra vez.');
     } finally {
       setIsGenerating(false);
     }
@@ -200,8 +230,9 @@ const GenerateForm = ({
             Modelo
           </label>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {IMAGE_MODELS.map((item) => {
+            {(isVideo ? VIDEO_MODELS : IMAGE_MODELS).map((item) => {
               const selected = formData.model === item.id;
+              const price = isVideo ? videoPriceLabel(item.id, formData.resolution) : item.price;
               return (
                 <label
                   key={item.id}
@@ -220,7 +251,7 @@ const GenerateForm = ({
                   <span>
                     <span className="block font-medium text-primary-800">{item.label}</span>
                     <span className="block text-sm text-accent-600">{item.id}</span>
-                    <span className="block text-sm font-semibold text-primary-700">{item.price}</span>
+                    <span className="block text-sm font-semibold text-primary-700">{price}</span>
                   </span>
                 </label>
               );
@@ -228,6 +259,72 @@ const GenerateForm = ({
           </div>
         </div>
 
+        {isVideo ? (
+          <div className="space-y-6">
+            <p className="text-center text-sm font-semibold text-primary-800">Dura 3 segundos</p>
+            <div className="space-y-3">
+              <label className="block text-sm font-semibold text-primary-800">Resolución</label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {VIDEO_RESOLUTIONS.map((resolution) => {
+                  const selected = formData.resolution === resolution;
+                  return (
+                    <label
+                      key={resolution}
+                      className={`flex items-center gap-3 cursor-pointer rounded-2xl border-2 p-4 min-h-14 ${
+                        selected ? 'border-primary-600 bg-primary-50' : 'border-accent-300 bg-white'
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="resolution"
+                        value={resolution}
+                        checked={selected}
+                        onChange={handleInputChange}
+                        className="h-5 w-5"
+                      />
+                      <span>
+                        <span className="block font-medium text-primary-800">{resolution}</span>
+                        <span className="block text-sm text-accent-600">{resolution === '480p' ? 'Más liviano' : 'Más nítido'}</span>
+                      </span>
+                    </label>
+                  );
+                })}
+              </div>
+            </div>
+            <div className="space-y-3">
+              <label className="block text-sm font-semibold text-primary-800">Tamaño</label>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {VIDEO_ASPECTS.map((aspect) => {
+                  const selected = formData.aspectRatio === aspect;
+                  return (
+                    <label
+                      key={aspect}
+                      className={`flex items-center gap-3 cursor-pointer rounded-2xl border-2 p-4 min-h-14 ${
+                        selected ? 'border-primary-600 bg-primary-50' : 'border-accent-300 bg-white'
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="aspectRatio"
+                        value={aspect}
+                        checked={selected}
+                        onChange={handleInputChange}
+                        className="h-5 w-5"
+                      />
+                      <span>
+                        <span className="block font-medium text-primary-800">{ASPECT_LABELS[aspect]}</span>
+                        <span className="block text-sm text-accent-600">{aspect}</span>
+                      </span>
+                    </label>
+                  );
+                })}
+              </div>
+            </div>
+            <p className="text-xs text-accent-500 text-center">
+              Puede tardar cerca de un minuto. La foto conserva cara, pelo y ropa.
+            </p>
+          </div>
+        ) : (
         <div className="space-y-4">
           <label className="block text-sm font-semibold text-primary-800 mb-4">
             Calidad de generación
@@ -293,6 +390,7 @@ const GenerateForm = ({
             La calidad alta produce mejores detalles pero toma más tiempo y recursos
           </p>
         </div>
+        )}
 
         <p className="text-sm text-accent-600 text-center">{description}</p>
 

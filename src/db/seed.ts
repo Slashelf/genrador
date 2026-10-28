@@ -50,6 +50,7 @@ const REFRESH_IDS = new Set([
   "el-gran-premio",
   "optimus-prime",
   "mini-chibi-mano",
+  "tokio-nevado",
 ]);
 
 async function seedStyles() {
@@ -73,6 +74,7 @@ async function seedStyles() {
         selectOptions: "selectOptions" in style ? style.selectOptions : null,
         referenceFile: "referenceFile" in style ? style.referenceFile : null,
         aspectRatio: "aspectRatio" in style ? style.aspectRatio : "1:1",
+        kind: "kind" in style && style.kind ? style.kind : "image",
         sortOrder: style.sortOrder,
       }).where(eq(styles.id, style.id));
       continue;

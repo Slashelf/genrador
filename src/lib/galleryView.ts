@@ -1,5 +1,6 @@
 import type { generations, styles } from "../db/schema";
 import { imageModelLabel } from "./imageModels";
+import { videoModelLabel } from "./videoModels";
 
 type GenerationRow = typeof generations.$inferSelect;
 type StyleRow = typeof styles.$inferSelect;
@@ -43,6 +44,7 @@ export type GalleryImage = {
     description: string;
     slug: string;
   };
+  kind: "image" | "video";
 };
 
 function thumbUrl(fileName: string) {
@@ -82,6 +84,7 @@ export function toGalleryImage(row: GenerationRow, style: StyleRow | null): Gall
   const icon = style?.icon || "image";
   const extraDetails = row.extraDetails || "";
   const celebrityName = row.celebrityName || "";
+  const kind = style?.kind === "video" || row.outputFile.endsWith(".mp4") ? "video" : "image";
 
   return {
     id: row.id,
@@ -99,7 +102,7 @@ export function toGalleryImage(row: GenerationRow, style: StyleRow | null): Gall
       prompt: row.promptUsed,
       quality: row.quality,
       model: row.model,
-      modelLabel: imageModelLabel(row.model),
+      modelLabel: kind === "video" ? videoModelLabel(row.model) : imageModelLabel(row.model),
     },
     styleId: row.styleId,
     styleName,
@@ -122,6 +125,7 @@ export function toGalleryImage(row: GenerationRow, style: StyleRow | null): Gall
       description,
       slug,
     },
+    kind,
   };
 }
 

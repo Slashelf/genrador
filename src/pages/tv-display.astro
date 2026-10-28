@@ -133,13 +133,19 @@ const displayImages = imagesWithOriginals.length > 0 ? imagesWithOriginals : all
       justify-content: center;
     }
 
-    .image-wrapper img {
+    .image-wrapper img,
+    .image-wrapper video {
       width: 70%;
       height: 100%;
       object-fit: cover;
       object-position: center;
       animation: fadeIn 0.8s ease-in;
       display: block;
+    }
+
+    .image-wrapper img[hidden],
+    .image-wrapper video[hidden] {
+      display: none;
     }
 
     /* Style Badge */
@@ -288,12 +294,23 @@ const displayImages = imagesWithOriginals.length > 0 ? imagesWithOriginals : all
               {displayImages[0].style?.name || displayImages[0].styleName || 'AI'}
             </div>
             <div class="image-wrapper">
-              <img 
-                id="generatedImage" 
-                src={displayImages[0].imageUrl || displayImages[0].url}
+              <img
+                id="generatedImage"
+                src={displayImages[0].kind === 'video' ? undefined : (displayImages[0].imageUrl || displayImages[0].url)}
                 alt="Imagen Generada"
                 loading="eager"
+                hidden={displayImages[0].kind === 'video'}
               />
+              <video
+                id="generatedVideo"
+                src={displayImages[0].kind === 'video' ? displayImages[0].url : undefined}
+                poster={displayImages[0].kind === 'video' ? displayImages[0].imageUrl : undefined}
+                muted
+                loop
+                playsinline
+                autoplay={displayImages[0].kind === 'video'}
+                hidden={displayImages[0].kind !== 'video'}
+              ></video>
             </div>
           </div>
         </>
@@ -330,6 +347,10 @@ const displayImages = imagesWithOriginals.length > 0 ? imagesWithOriginals : all
     let isPaused = false;
     let isFirstDisplay = true; // Para evitar duplicar la primera imagen
 
+    function isVideoItem(item) {
+      return item && (item.kind === 'video' || String(item.fileName || '').endsWith('.mp4'));
+    }
+
     function updateDisplay(skipIncrement = false) {
       if (images.length === 0 || isPaused) return;
 
@@ -360,9 +381,28 @@ const displayImages = imagesWithOriginals.length > 0 ? imagesWithOriginals : all
         }, 300);
       }
 
-      // Actualizar imagen generada
       const generatedImg = document.getElementById('generatedImage');
-      if (generatedImg) {
+      const generatedVideo = document.getElementById('generatedVideo');
+      const showVideo = isVideoItem(currentImage);
+      if (showVideo && generatedVideo) {
+        if (generatedImg) generatedImg.hidden = true;
+        generatedVideo.hidden = false;
+        const src = currentImage.url || currentImage.downloadUrl;
+        if (generatedVideo.getAttribute('src') !== src) {
+          generatedVideo.src = src;
+          generatedVideo.poster = currentImage.imageUrl || '';
+        }
+        generatedVideo.muted = true;
+        generatedVideo.loop = true;
+        generatedVideo.playsInline = true;
+        generatedVideo.play().catch(function () {});
+      } else if (generatedImg) {
+        if (generatedVideo) {
+          generatedVideo.pause();
+          generatedVideo.hidden = true;
+          generatedVideo.removeAttribute('src');
+        }
+        generatedImg.hidden = false;
         generatedImg.style.opacity = '0';
         setTimeout(() => {
           generatedImg.src = currentImage.imageUrl || currentImage.url;
@@ -394,7 +434,7 @@ const displayImages = imagesWithOriginals.length > 0 ? imagesWithOriginals : all
     }
 
     // Mostrar notificación de nueva imagen
-    function showNewImageNotification() {
+    function showNewImageNotification(item) {
       // Crear elemento de notificación
       const notification = document.createElement('div');
       notification.style.cssText = `
@@ -412,7 +452,7 @@ const displayImages = imagesWithOriginals.length > 0 ? imagesWithOriginals : all
         box-shadow: 0 20px 60px rgba(102, 126, 234, 0.6);
         animation: notificationPulse 0.5s ease-out;
       `;
-      notification.textContent = 'Nueva imagen generada';
+      notification.textContent = isVideoItem(item) ? 'Nuevo video generado' : 'Nueva imagen generada';
       
       // Agregar animación CSS
       const style = document.createElement('style');
@@ -462,7 +502,7 @@ const displayImages = imagesWithOriginals.length > 0 ? imagesWithOriginals : all
           lastKnownTimestamp = newTimestamp;
           
           // Mostrar notificación
-          showNewImageNotification();
+          showNewImageNotification(data.image);
           
           // Esperar 3 segundos, luego avanzar a la nueva imagen
           setTimeout(() => {

@@ -12,6 +12,7 @@ export const styles = sqliteTable("styles", {
   selectOptions: text("select_options"),
   referenceFile: text("reference_file"),
   aspectRatio: text("aspect_ratio").notNull().default("1:1"),
+  kind: text("kind").notNull().default("image"),
   requiresCelebrity: integer("requires_celebrity", { mode: "boolean" }).notNull().default(false),
   active: integer("active", { mode: "boolean" }).notNull().default(true),
   sortOrder: integer("sort_order").notNull().default(0),

@@ -14,14 +14,17 @@ const styles = styleRows.map((style) => ({
   title: style.name,
   description: style.description,
   icon: style.icon,
+  kind: style.kind === 'video' ? 'video' : 'image',
   images: allImages.filter((image) => image.styleId === style.id).slice(0, 3).map((image) => image.imageUrl),
   totalGenerated: allImages.filter((image) => image.styleId === style.id).length,
 }));
+const imageStyles = styles.filter((style) => style.kind !== 'video');
+const videoStyles = styles.filter((style) => style.kind === 'video');
 ---
 
 <Layout
 	title="Catálogo AI - Universidad Tomás Frías"
-	description="Explora nuestra colección de estilos AI para generar imágenes increíbles."
+	description="Explora los estilos de fotos y videos de la feria."
 >
 	<section class="bg-primary-800 py-10 sm:py-16">
 		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white">
@@ -29,28 +32,99 @@ const styles = styleRows.map((style) => ({
 				<span class="text-secondary-400">Elige</span> tu estilo
 			</h1>
 			<p class="text-lg sm:text-xl max-w-3xl mx-auto text-primary-100">
-				Toca una tarjeta y sube tu foto.
+				Fotos y videos van en pestañas distintas. Toca una tarjeta y sube tu foto.
 			</p>
 		</div>
 	</section>
 
 	<section class="py-6 sm:py-12 bg-primary-50">
 		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-			<div class="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-8">
-				{styles.map((style) => (
-					<StyleCard
-						id={style.id}
-						title={style.title}
-						description={style.description}
-						icon={style.icon}
-						images={style.images}
-						totalGenerated={style.totalGenerated}
-						client:load
-					/>
-				))}
+			<div class="flex flex-wrap gap-3 mb-6" role="tablist" aria-label="Tipo de estilo">
+				<button
+					type="button"
+					role="tab"
+					data-catalog-tab="image"
+					aria-selected="true"
+					class="catalog-tab min-h-12 px-5 py-3 rounded-2xl font-semibold bg-primary-700 text-white"
+				>
+					Imágenes ({imageStyles.length})
+				</button>
+				<button
+					type="button"
+					role="tab"
+					data-catalog-tab="video"
+					aria-selected="false"
+					class="catalog-tab min-h-12 px-5 py-3 rounded-2xl font-semibold bg-white text-primary-800 border border-primary-200"
+				>
+					Videos ({videoStyles.length})
+				</button>
+			</div>
+
+			<div data-catalog-panel="image">
+				<div class="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-8">
+					{imageStyles.map((style) => (
+						<StyleCard
+							id={style.id}
+							title={style.title}
+							description={style.description}
+							icon={style.icon}
+							images={style.images}
+							totalGenerated={style.totalGenerated}
+							client:load
+						/>
+					))}
+				</div>
+			</div>
+
+			<div data-catalog-panel="video" hidden>
+				<p class="text-primary-700 mb-5">Cada video dura 3 segundos. La foto se usa como referencia de cara, pelo y ropa.</p>
+				{videoStyles.length === 0 ? (
+					<p class="text-accent-600">Todavía no hay estilos de video.</p>
+				) : (
+					<div class="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-8">
+						{videoStyles.map((style) => (
+							<StyleCard
+								id={style.id}
+								title={style.title}
+								description={style.description}
+								icon={style.icon}
+								images={style.images}
+								totalGenerated={style.totalGenerated}
+								client:load
+							/>
+						))}
+					</div>
+				)}
 			</div>
 		</div>
 	</section>
+
+	<script>
+		const buttons = document.querySelectorAll("[data-catalog-tab]");
+		const panels = document.querySelectorAll("[data-catalog-panel]");
+
+		function showCatalog(name) {
+			buttons.forEach((button) => {
+				const on = button.getAttribute("data-catalog-tab") === name;
+				button.setAttribute("aria-selected", on ? "true" : "false");
+				button.classList.toggle("bg-primary-700", on);
+				button.classList.toggle("text-white", on);
+				button.classList.toggle("bg-white", !on);
+				button.classList.toggle("text-primary-800", !on);
+				button.classList.toggle("border", !on);
+				button.classList.toggle("border-primary-200", !on);
+			});
+			panels.forEach((panel) => {
+				panel.hidden = panel.getAttribute("data-catalog-panel") !== name;
+			});
+		}
+
+		buttons.forEach((button) => {
+			button.addEventListener("click", () => showCatalog(button.getAttribute("data-catalog-tab")));
+		});
+
+		if (window.location.hash === "#videos") showCatalog("video");
+	</script>
 
 	<footer class="bg-accent-900 text-white py-12">
 		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
