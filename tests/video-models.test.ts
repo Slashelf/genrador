@@ -11,9 +11,10 @@ import {
   resolveVideoResolution,
   videoPrice,
   videoPriceLabel,
+  withVideoLikeness,
 } from "../src/lib/videoModels";
 
-const TOKIO_PROMPT = "The person from the reference photo stands on a snowy Tokyo street at dusk, facing the camera, keeping their exact face, hairstyle, and clothing. Snowflakes and pink cherry blossom petals fall gently around them. Blurred crowds walk behind them. The camera stays in front of the person, handheld with a subtle natural shake, no rotation, no orbit, no camera turns. The person breathes calmly, blinks, and gives a soft smile. Soft warm lighting from shop signs, shallow depth of field, cinematic and peaceful winter mood. Realistic, natural movement.";
+const TOKIO_PROMPT = "The person from the reference photo stands on a snowy Tokyo street at dusk, facing the camera, keeping their exact face, gender, age, hairstyle, hair color, skin tone, glasses or accessories, and clothing. Do not turn them into someone else. Snowflakes and pink cherry blossom petals fall gently around them. Blurred crowds walk behind them. The camera stays in front of the person, handheld with a subtle natural shake, no rotation, no orbit, no camera turns. The person breathes calmly, blinks, and gives a soft smile. Soft warm lighting from shop signs, shallow depth of field, cinematic and peaceful winter mood. Realistic, natural movement.";
 
 describe("videos de la feria", () => {
   it("guarda el prompt de Tokio y lo separa de las fotos", () => {
@@ -77,8 +78,23 @@ describe("videos de la feria", () => {
     expect(byId["asado-lunar"]?.promptTemplate.endsWith("sharp focus on the main astronaut.")).toBe(true);
     expect(byId["pelea-te"]?.videoDuration).toBe(3);
     expect(byId["pelea-te"]?.promptTemplate.includes("one continuous 3-second shot")).toBe(true);
+    expect(byId["pelea-te"]?.promptTemplate.includes("the person from the reference photo")).toBe(true);
     expect(byId["pelea-te-larga"]?.videoDuration).toBe(6);
     expect(byId["pelea-te-larga"]?.promptTemplate.includes("one continuous 6-second shot")).toBe(true);
+    expect(byId["pelea-te-larga"]?.promptTemplate.includes("the person from the reference photo")).toBe(true);
+    const videos = STYLE_SEEDS.filter((item) => item.kind === "video");
+    for (const style of videos) {
+      const text = style.promptTemplate.toLowerCase();
+      expect(text.includes("the woman")).toBe(false);
+      expect(text.includes("pink highlights")).toBe(false);
+      expect(text.includes("plum shirt")).toBe(false);
+      expect(text.includes("cream cargo")).toBe(false);
+      expect(text.includes("gender")).toBe(true);
+    }
+    const prefixed = withVideoLikeness("A snowy street.");
+    expect(prefixed.startsWith("The main character is the person in the reference photo.")).toBe(true);
+    expect(prefixed.includes("change their gender")).toBe(true);
+    expect(withVideoLikeness(prefixed)).toBe(prefixed);
     expect(byId["ghibli-classic"]?.promptTemplate.includes("Redraw this photo in Ghibli style")).toBe(false);
     expect(byId["ghibli-classic"]?.promptTemplate.includes("hand-painted")).toBe(true);
   });

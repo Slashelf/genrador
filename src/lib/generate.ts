@@ -4,7 +4,7 @@ import { requestReferenceVideo } from "./xaiVideo";
 import { createThumbnail, writeGeneratedSet } from "./images";
 import { renderPrompt } from "./prompt";
 import { insertGeneration, type StyleRecord } from "../server/records";
-import { videoFrameSize, type VideoAspect, type VideoResolution } from "./videoModels";
+import { videoFrameSize, withVideoLikeness, type VideoAspect, type VideoResolution } from "./videoModels";
 
 export async function generateForStyle(input: {
   style: StyleRecord;
@@ -48,7 +48,7 @@ export async function generateForStyle(input: {
   const output = isVideo
     ? await requestReferenceVideo({
       person: input.person,
-      prompt,
+      prompt: withVideoLikeness(prompt),
       model: input.model,
       resolution,
       aspectRatio,

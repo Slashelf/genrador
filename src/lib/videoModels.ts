@@ -79,6 +79,15 @@ export function friendlyVideoError(message: string) {
   return "No se pudo crear el video. Puedes intentarlo otra vez.";
 }
 
+export const VIDEO_LIKENESS_PREFIX =
+  "The main character is the person in the reference photo. Copy their face, gender, age, hairstyle, hair color, skin tone, and glasses or accessories onto that character. Do not replace them with a different person or change their gender. ";
+
+export function withVideoLikeness(prompt: string) {
+  const text = prompt.trim();
+  if (text.startsWith("The main character is the person in the reference photo.")) return text;
+  return `${VIDEO_LIKENESS_PREFIX}${text}`;
+}
+
 export function videoFrameSize(resolution: VideoResolution, aspect: VideoAspect) {
   const table = {
     "480p": { "9:16": [480, 854], "16:9": [854, 480], "1:1": [480, 480] },
